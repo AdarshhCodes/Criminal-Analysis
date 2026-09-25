@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useInvestigationStore } from '../../stores';
 import { investigationService } from '../../services';
+import { EntityRoleBadge } from '../common/SeverityBadge';
 
 export const GraphTableView: React.FC = () => {
   const { currentCase, selectEntity, selectRelationship } = useInvestigationStore();
@@ -183,7 +184,9 @@ export const GraphTableView: React.FC = () => {
                           {e.type}
                         </span>
                       </td>
-                      <td className="p-3 text-forge-text-secondary font-sans">{e.role || '—'}</td>
+                      <td className="p-3">
+                        <EntityRoleBadge role={e.role} />
+                      </td>
                       <td className="p-3 text-forge-text-muted">{e.primaryIdentifier || '—'}</td>
                       <td className="p-3 text-right font-bold">
                         <span

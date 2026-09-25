@@ -15,6 +15,12 @@ import {
   Network,
   Clock,
   FileText,
+  GitBranch,
+  Banknote,
+  HeartHandshake,
+  ShieldAlert,
+  Eye,
+  ArrowRight,
 } from 'lucide-react';
 import { useInvestigationStore, ContextPanelTab } from '../../stores';
 import { investigationService, evidenceService } from '../../services';
@@ -102,6 +108,57 @@ export const ContextPanel: React.FC = () => {
     const evs = evidenceService.getEvidenceForEntity(selectedEntity.id);
     networkBreakdown.linkedEvidence = evs.map((e) => ({ id: e.id, title: e.title, type: e.type }));
   }
+
+  // Cross-case lookups (only for PERSON entities)
+  const crossAppearances =
+    selectedEntity?.type === 'PERSON'
+      ? investigationService.getCrossAppearances(selectedEntity.id)
+      : [];
+
+  const crossFinancialLinks =
+    selectedEntity?.type === 'PERSON'
+      ? investigationService.getCrossFinancialLinks(selectedEntity.id)
+      : [];
+
+  // Person classification helpers
+  const classificationConfig = {
+    ACCUSED: {
+      label: 'Accused',
+      bg: 'bg-rose-950/50',
+      border: 'border-rose-700/50',
+      text: 'text-rose-400',
+      icon: ShieldAlert,
+      description: 'Charged or formally accused in this investigation. Prior flags, risk indicators, and connected cases shown below.',
+    },
+    VICTIM: {
+      label: 'Victim / Complainant',
+      bg: 'bg-violet-950/50',
+      border: 'border-violet-600/40',
+      text: 'text-violet-300',
+      icon: HeartHandshake,
+      description: 'Protected complainant or victim identified in this case. Sensitive profile — handle with care.',
+    },
+    WITNESS: {
+      label: 'Witness',
+      bg: 'bg-sky-950/50',
+      border: 'border-sky-600/40',
+      text: 'text-sky-300',
+      icon: Eye,
+      description: 'Key witness in this case. Testimony and statement records linked below.',
+    },
+    SUSPECT: {
+      label: 'Suspect',
+      bg: 'bg-amber-950/50',
+      border: 'border-amber-700/40',
+      text: 'text-amber-400',
+      icon: AlertTriangle,
+      description: 'Under active scrutiny. Formal charges not yet filed — treat intelligence as preliminary.',
+    },
+  } as const;
+
+  const classKey = selectedEntity?.personClassification;
+  const classInfo = classKey ? classificationConfig[classKey] : null;
+
 
   const tabs: { id: ContextPanelTab; label: string; icon: React.ElementType }[] = [
     { id: 'ENTITY', label: 'Entity Dossier', icon: User },
@@ -217,6 +274,22 @@ export const ContextPanel: React.FC = () => {
                   </div>
                 </div>
 
+              {/* Role Classification Banner — structurally distinct for Victim vs Accused */}
+              {classInfo && selectedEntity.type === 'PERSON' && (() => {
+                const Icon = classInfo.icon;
+                return (
+                  <div className={`p-3 rounded-md border ${classInfo.bg} ${classInfo.border} space-y-1`}>
+                    <div className={`flex items-center gap-1.5 font-mono text-[10px] font-bold ${classInfo.text}`}>
+                      <Icon className="w-3.5 h-3.5" />
+                      <span>{classInfo.label.toUpperCase()}</span>
+                    </div>
+                    <p className="text-[11px] text-forge-text-secondary leading-relaxed font-sans">
+                      {classInfo.description}
+                    </p>
+                  </div>
+                );
+              })()}
+
                 {selectedEntity.primaryIdentifier && (
                   <div className="p-2 rounded bg-forge-bg border border-forge-border font-mono text-[11px] text-forge-text-secondary">
                     <span className="text-forge-text-muted block text-[9px]">PRIMARY IDENTIFIER</span>
@@ -306,6 +379,87 @@ export const ContextPanel: React.FC = () => {
                       </div>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {/* ── CROSS-CASE: Also appears in ── */}
+              {crossAppearances.length > 0 && (
+                <div className="bg-forge-card p-3.5 rounded-md border border-forge-cyan/30 space-y-2">
+                  <div className="text-[10px] font-mono uppercase font-bold flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-forge-cyan">
+                      <GitBranch className="w-3.5 h-3.5" />
+                      <span>Also appears in</span>
+                    </div>
+                    <span className="text-[9px] text-forge-cyan font-mono">CROSS-CASE LINK</span>
+                  </div>
+                  <div className="space-y-2">
+                    {crossAppearances.map(({ caseItem, roleLabel }) => (
+                      <div
+                        key={caseItem.id}
+                        className="p-2.5 rounded bg-forge-bg border border-forge-border space-y-1.5"
+                      >
+                        <div className="flex items-start justify-between gap-1">
+                          <div className="space-y-0.5">
+                            <div className="font-mono text-[10px] font-bold text-forge-cyan">
+                              {caseItem.code}
+                            </div>
+                            <div className="text-[11px] font-bold text-white line-clamp-1">
+                              {caseItem.name}
+                            </div>
+                            <div className="text-[10px] text-forge-text-muted">{roleLabel}</div>
+                          </div>
+                          <button
+                            onClick={() => {
+                              const store = useInvestigationStore.getState();
+                              store.selectCase(caseItem.id);
+                            }}
+                            className="shrink-0 flex items-center gap-0.5 px-2 py-1 rounded bg-forge-cyan/15 hover:bg-forge-cyan/30 border border-forge-cyan/40 text-forge-cyan font-mono text-[10px] font-bold transition"
+                          >
+                            <span>Jump</span>
+                            <ArrowRight className="w-2.5 h-2.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* ── CROSS-CASE: Financial links across cases ── */}
+              {crossFinancialLinks.length > 0 && (
+                <div className="bg-forge-card p-3.5 rounded-md border border-forge-amber/30 space-y-2">
+                  <div className="text-[10px] font-mono uppercase font-bold flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-forge-amber">
+                      <Banknote className="w-3.5 h-3.5" />
+                      <span>Financial links across cases</span>
+                    </div>
+                    <span className="text-[9px] text-forge-amber font-mono">AI DETECTED</span>
+                  </div>
+                  <div className="space-y-2">
+                    {crossFinancialLinks.map((link, idx) => (
+                      <div
+                        key={idx}
+                        className="p-2.5 rounded bg-forge-bg border border-forge-border space-y-1"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono text-[10px] text-forge-amber font-bold">
+                            {link.caseItem.code}
+                          </span>
+                          {link.amount && (
+                            <span className="text-[10px] font-mono font-bold text-forge-emerald">
+                              {link.amount}
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-[11px] text-white">{link.relatedEntityName}</div>
+                        <div className="text-[10px] text-forge-text-muted">{link.linkType}</div>
+                        <div className="text-[9px] text-forge-text-muted font-mono">{link.caseItem.name}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-forge-text-muted font-sans leading-relaxed">
+                    AI-flagged financial connection. Requires human verification before use as evidence.
+                  </p>
                 </div>
               )}
 

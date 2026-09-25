@@ -3,6 +3,7 @@ export type AlertStatus = 'NEW' | 'ACKNOWLEDGED' | 'INVESTIGATING' | 'RESOLVED';
 
 export interface Alert {
   id: string; // e.g. "IF-ALT-001"
+  caseId?: string; // e.g. "IF-CASE-2026-0882"
   type: string; // e.g. "HAWALA_CLUSTER", "BURNER_ACTIVATION", "CO_LOCATION"
   severity: AlertSeverity;
   title: string;

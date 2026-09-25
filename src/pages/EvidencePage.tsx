@@ -43,6 +43,7 @@ import { truncateHash } from '../lib/utils';
 export const EvidencePage: React.FC = () => {
   const navigate = useNavigate();
   const {
+    currentCase,
     selectEvidence,
     openEvidenceModal,
     verifyEvidenceAction,
@@ -57,10 +58,10 @@ export const EvidencePage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<VerificationStatus | 'ALL'>('ALL');
   const [exportedToast, setExportedToast] = useState(false);
 
-  // Retrieve raw evidence items from service
+  // Retrieve raw evidence items from service (scoped to currentCase)
   const allEvidence = useMemo(() => {
-    return evidenceService.getEvidence();
-  }, [selectedEvidence]);
+    return evidenceService.getEvidence(undefined, currentCase.id);
+  }, [selectedEvidence, currentCase.id]);
 
   // Filtered dataset before table operations
   const filteredData = useMemo(() => {

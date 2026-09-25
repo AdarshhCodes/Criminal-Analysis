@@ -1,7 +1,7 @@
 import { VerificationStatus } from './relationship';
 
 export interface AgentReasoningStep {
-  agentName: 'Orchestrator' | 'Telecom Agent' | 'Financial Agent' | 'Visual Vision Agent' | 'Graph Analytics' | 'Vector DB';
+  agentName: 'Orchestrator' | 'Telecom Agent' | 'Financial Agent' | 'Visual Vision Agent' | 'Graph Analytics' | 'Vector DB' | 'Predictive Pattern Agent' | 'Cross-Case Financial Agent' | 'Fraud Velocity Agent' | 'Cross-Case Graph Agent' | 'Pattern Matching Agent';
   status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'VERIFIED';
   action: string;
   finding: string;

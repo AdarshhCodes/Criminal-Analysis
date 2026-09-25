@@ -20,6 +20,7 @@ export interface ChainOfCustodyRecord {
 
 export interface Evidence {
   id: string; // e.g. "IF-EVD-001"
+  caseId?: string; // e.g. "IF-CASE-2026-0882"
   type: EvidenceType;
   title: string;
   source: string;

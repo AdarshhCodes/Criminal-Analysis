@@ -15,10 +15,12 @@ import {
 import { useInvestigationStore } from '../stores';
 import { alertService, investigationService } from '../services';
 import { Alert, AlertSeverity, AlertStatus } from '../types';
+import { SeverityBadge } from '../components/common/SeverityBadge';
 
 export const AlertsPage: React.FC = () => {
   const navigate = useNavigate();
   const {
+    currentCase,
     selectEntity,
     investigateAlertAction,
     acknowledgeAlertAction,
@@ -29,7 +31,7 @@ export const AlertsPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<AlertStatus | 'ALL'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const rawAlerts = alertService.getAlerts();
+  const rawAlerts = alertService.getAlerts(undefined, currentCase.id);
 
   const filteredAlerts = rawAlerts.filter((alt) => {
     const matchesSeverity = severityFilter === 'ALL' || alt.severity === severityFilter;
@@ -54,18 +56,7 @@ export const AlertsPage: React.FC = () => {
     navigate('/graph');
   };
 
-  const getSeverityBadge = (severity: AlertSeverity) => {
-    switch (severity) {
-      case 'CRITICAL':
-        return 'bg-rose-950/40 text-rose-400 border-rose-600/50';
-      case 'HIGH':
-        return 'bg-amber-950/40 text-amber-400 border-amber-600/50';
-      case 'MEDIUM':
-        return 'bg-forge-cyan/20 text-forge-cyan border-forge-cyan/40';
-      case 'LOW':
-        return 'bg-slate-800 text-slate-300 border-slate-700';
-    }
-  };
+
 
   const getStatusBadge = (status: AlertStatus) => {
     switch (status) {
@@ -206,9 +197,7 @@ export const AlertsPage: React.FC = () => {
               {/* Alert Header Row */}
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-forge-border/60 pb-2">
                 <div className="flex items-center space-x-2 font-mono text-[10px]">
-                  <span className={`px-2 py-0.5 rounded font-bold border ${getSeverityBadge(alt.severity)}`}>
-                    {alt.severity}
-                  </span>
+                  <SeverityBadge level={alt.severity} size="xs" />
                   <span className={`px-2 py-0.5 rounded font-bold border ${getStatusBadge(alt.status)}`}>
                     {alt.status}
                   </span>

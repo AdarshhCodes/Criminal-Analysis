@@ -1,14 +1,26 @@
 import { Evidence, EvidenceType } from '../types';
-import { SYNTHETIC_EVIDENCE } from '../data';
+import { ALL_EVIDENCE } from '../data';
+import { investigationService } from './investigationService';
 
 class EvidenceService {
-  private evidenceList: Evidence[] = [...SYNTHETIC_EVIDENCE];
+  private evidenceList: Evidence[] = [...ALL_EVIDENCE];
 
-  public getEvidence(typeFilter?: EvidenceType | 'ALL'): Evidence[] {
-    if (!typeFilter || typeFilter === 'ALL') {
-      return [...this.evidenceList];
+  public getEvidence(typeFilter?: EvidenceType | 'ALL', caseId?: string): Evidence[] {
+    let list = [...this.evidenceList];
+
+    if (caseId && caseId !== 'ALL' && caseId !== 'ALL-OPERATIONS') {
+      const targetCase = investigationService.getCaseById(caseId);
+      const caseEntityIds = new Set(targetCase?.entityIds || []);
+      list = list.filter((e) => {
+        if (e.caseId) return e.caseId === caseId;
+        return e.entityIds.some((id) => caseEntityIds.has(id));
+      });
     }
-    return this.evidenceList.filter((e) => e.type === typeFilter);
+
+    if (!typeFilter || typeFilter === 'ALL') {
+      return list;
+    }
+    return list.filter((e) => e.type === typeFilter);
   }
 
   public getEvidenceById(id: string): Evidence | undefined {

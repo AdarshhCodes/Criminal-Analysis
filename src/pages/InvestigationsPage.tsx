@@ -1,6 +1,12 @@
+import React from 'react';
 import { FolderKanban, ArrowRight } from 'lucide-react';
 import { useInvestigationStore } from '../stores';
 import { Link } from 'react-router-dom';
+import {
+  SeverityBadge,
+  CaseStatusBadge,
+  CaseFlagBadge,
+} from '../components/common/SeverityBadge';
 
 export const InvestigationsPage: React.FC = () => {
   const { cases, currentCase, selectCase } = useInvestigationStore();
@@ -31,17 +37,15 @@ export const InvestigationsPage: React.FC = () => {
             }`}
           >
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-1.5">
                 <span className="font-mono text-xs font-bold text-forge-cyan">{c.code}</span>
-                <span
-                  className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold ${
-                    c.priority === 'CRITICAL'
-                      ? 'bg-forge-rose/20 text-forge-rose border border-forge-rose/40'
-                      : 'bg-forge-amber/20 text-forge-amber border border-forge-amber/40'
-                  }`}
-                >
-                  {c.priority}
-                </span>
+                <div className="flex items-center space-x-1.5">
+                  <CaseStatusBadge status={c.status} size="xs" />
+                  <SeverityBadge level={c.priority} size="xs" />
+                  {c.caseFlags?.includes('WOMEN_RELATED') && (
+                    <CaseFlagBadge flag="WOMEN_RELATED" size="xs" />
+                  )}
+                </div>
               </div>
               <h3 className="text-base font-bold text-white leading-snug">{c.name}</h3>
               <p className="text-xs text-forge-text-secondary line-clamp-3 leading-relaxed">

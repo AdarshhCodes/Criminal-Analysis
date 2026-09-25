@@ -8,6 +8,7 @@ export type TimelineEventType =
 
 export interface TimelineEvent {
   id: string; // e.g. "IF-TLE-001"
+  caseId?: string; // e.g. "IF-CASE-2026-0882"
   type: TimelineEventType;
   timestamp: string;
   title: string;

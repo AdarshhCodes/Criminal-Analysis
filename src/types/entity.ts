@@ -19,6 +19,7 @@ export interface Entity {
   name: string;
   aliases?: string[];
   role?: string; // e.g. "Syndicate Kingpin", "Hawala Courier", "Burner SIM Reseller"
+  personClassification?: 'ACCUSED' | 'VICTIM' | 'WITNESS' | 'SUSPECT'; // Role classification for persons
   riskScore: number; // 0 - 100
   status: EntityStatus;
   primaryIdentifier?: string; // phone number, bank account number, plate number, FIR number

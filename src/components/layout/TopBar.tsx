@@ -122,55 +122,129 @@ export const TopBar: React.FC = () => {
 
         {/* Case Switcher & Officer Profile */}
         <div className="flex items-center space-x-3 shrink-0">
-          {/* Active Case Selector */}
+          {/* Active Case Selector / Case Switcher */}
           <div className="relative">
             <button
               onClick={() => setIsCaseMenuOpen(!isCaseMenuOpen)}
-              className="flex items-center space-x-2 bg-forge-card hover:bg-forge-cardHover border border-forge-border rounded px-3 py-1.5 text-left transition"
+              className="flex items-center space-x-2 bg-forge-card hover:bg-forge-cardHover border border-forge-border rounded px-3 py-1.5 text-left transition shadow-sm"
+              title="Switch Investigation Case or Executive Portfolio View"
             >
               <div>
-                <div className="text-[9px] font-mono text-forge-cyan leading-none">ACTIVE CASE</div>
-                <div className="text-xs font-semibold text-white max-w-[140px] truncate">
-                  {currentCase.name.split(':')[0]}
+                <div className="text-[9px] font-mono text-forge-cyan leading-none font-semibold">
+                  {currentCase.id === 'ALL' ? 'PORTFOLIO VIEW' : 'ACTIVE CASE'}
+                </div>
+                <div className="text-xs font-semibold text-white max-w-[160px] truncate">
+                  {currentCase.id === 'ALL' ? 'All Operations' : currentCase.name.split(':')[0]}
                 </div>
               </div>
-              <ChevronDown className="w-3.5 h-3.5 text-forge-text-muted" />
+              <ChevronDown className={`w-3.5 h-3.5 text-forge-text-muted transition-transform duration-200 ${isCaseMenuOpen ? 'rotate-180 text-forge-cyan' : ''}`} />
             </button>
 
             {isCaseMenuOpen && (
-              <div className="absolute right-0 mt-1 w-72 bg-forge-card border border-forge-border rounded-md shadow-panel p-1 z-50">
-                <div className="px-3 py-1.5 text-[10px] font-mono text-forge-text-muted border-b border-forge-border">
-                  SELECT INVESTIGATION FILE
-                </div>
-                {cases.map((c) => (
-                  <button
-                    key={c.id}
-                    onClick={() => {
-                      selectCase(c.id);
-                      setIsCaseMenuOpen(false);
-                    }}
-                    className={`w-full text-left px-3 py-2 rounded text-xs transition ${
-                      c.id === currentCase.id
-                        ? 'bg-forge-cyan/15 text-forge-cyan font-medium border border-forge-cyan/30'
-                        : 'text-forge-text-secondary hover:bg-forge-bg hover:text-white'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold">{c.code}</span>
-                      <span
-                        className={`text-[9px] font-mono px-1.5 py-0.2 rounded ${
-                          c.priority === 'CRITICAL'
-                            ? 'bg-forge-rose/20 text-forge-rose'
-                            : 'bg-forge-amber/20 text-forge-amber'
-                        }`}
-                      >
-                        {c.priority}
-                      </span>
+              <>
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setIsCaseMenuOpen(false)}
+                />
+                <div className="absolute right-0 mt-1.5 w-80 bg-forge-card border border-forge-border rounded-lg shadow-2xl p-1.5 z-50 divide-y divide-forge-border/50">
+                  <div className="px-3 py-2">
+                    <div className="text-[10px] font-mono text-forge-cyan uppercase tracking-wider font-bold">
+                      CASE SWITCHER · CENTRAL INTELLIGENCE
                     </div>
-                    <div className="text-[11px] text-forge-text-muted truncate mt-0.5">{c.name}</div>
-                  </button>
-                ))}
-              </div>
+                    <p className="text-[10px] text-forge-text-muted mt-0.5">
+                      Select a single case or view the multi-case executive portfolio.
+                    </p>
+                  </div>
+
+                  {/* Option 1: Consolidated All Cases */}
+                  <div className="py-1">
+                    <button
+                      onClick={() => {
+                        selectCase('ALL');
+                        setIsCaseMenuOpen(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded-md text-xs transition ${
+                        currentCase.id === 'ALL'
+                          ? 'bg-forge-cyan/20 text-white font-medium border border-forge-cyan/40 shadow-sm'
+                          : 'text-forge-text-secondary hover:bg-forge-bg hover:text-white'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold flex items-center space-x-1.5 text-white">
+                          <span>🌐 All Cases (Executive Portfolio)</span>
+                        </span>
+                        <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-forge-cyan/20 text-forge-cyan font-bold">
+                          CONSOLIDATED
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-forge-text-muted mt-0.5">
+                        High-level executive dashboard across all 4 criminal operations
+                      </div>
+                    </button>
+                  </div>
+
+                  {/* Individual Cases List */}
+                  <div className="py-1 space-y-1 max-h-72 overflow-y-auto">
+                    <div className="px-3 py-1 text-[9px] font-mono text-forge-text-muted uppercase">
+                      ACTIVE INVESTIGATION FILES ({cases.length})
+                    </div>
+                    {cases.map((c) => {
+                      const isWomenRelated = c.caseFlags?.includes('WOMEN_RELATED');
+                      const isSelected = currentCase.id === c.id;
+
+                      return (
+                        <button
+                          key={c.id}
+                          onClick={() => {
+                            selectCase(c.id);
+                            setIsCaseMenuOpen(false);
+                          }}
+                          className={`w-full text-left px-3 py-2 rounded-md text-xs transition ${
+                            isSelected
+                              ? 'bg-forge-cyan/15 text-forge-cyan font-medium border border-forge-cyan/40'
+                              : 'text-forge-text-secondary hover:bg-forge-bg hover:text-white'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="font-semibold text-white font-mono text-[11px]">{c.code}</span>
+                            <div className="flex items-center space-x-1 shrink-0">
+                              {isWomenRelated && (
+                                <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-rose-950/80 text-rose-300 border border-rose-500/40 font-bold">
+                                  WOMEN
+                                </span>
+                              )}
+                              <span
+                                className={`text-[9px] font-mono px-1.5 py-0.2 rounded font-bold ${
+                                  c.status === 'ACTIVE'
+                                    ? 'bg-emerald-500/20 text-emerald-400'
+                                    : c.status === 'UNDER_REVIEW'
+                                    ? 'bg-cyan-500/20 text-cyan-400'
+                                    : 'bg-slate-500/20 text-slate-400'
+                                }`}
+                              >
+                                {c.status}
+                              </span>
+                              <span
+                                className={`text-[9px] font-mono px-1.5 py-0.2 rounded font-bold ${
+                                  c.priority === 'CRITICAL'
+                                    ? 'bg-rose-500/20 text-rose-400'
+                                    : 'bg-amber-500/20 text-amber-400'
+                                }`}
+                              >
+                                {c.priority}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="text-[11px] text-white font-medium truncate mt-1">{c.name}</div>
+                          <div className="text-[10px] text-forge-text-muted truncate mt-0.5">
+                            Lead: {c.leadInvestigator} · {c.metrics.totalEntities} entities
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </>
             )}
           </div>
 

@@ -47,6 +47,8 @@ export interface InvestigationState {
   // Case & Identity
   currentCase: Case;
   cases: Case[];
+  selectedCaseId: string | 'ALL';
+  isAllCasesSelected: boolean;
   currentInvestigator: {
     id: string;
     name: string;
@@ -139,6 +141,8 @@ const defaultFilters: GraphFilterConfig = {
 export const useInvestigationStore = create<InvestigationState>((set, get) => ({
   cases: investigationService.getCases(),
   currentCase: investigationService.getCases()[0],
+  selectedCaseId: investigationService.getCases()[0].id,
+  isAllCasesSelected: false,
   currentInvestigator: {
     id: 'OFFICER-VR-88219',
     name: 'Insp. Vikramaditya Rathore',
@@ -176,6 +180,8 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
     if (c) {
       set({
         currentCase: c,
+        selectedCaseId: caseId,
+        isAllCasesSelected: caseId === 'ALL' || caseId === 'ALL-OPERATIONS',
         selectedEntity: null,
         selectedEvidence: null,
         selectedAlert: null,

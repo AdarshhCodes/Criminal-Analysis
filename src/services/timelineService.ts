@@ -1,15 +1,26 @@
 import { TimelineEvent, TimelineEventType } from '../types';
-import { SYNTHETIC_TIMELINE } from '../data';
+import { ALL_TIMELINE } from '../data';
+import { investigationService } from './investigationService';
 
 class TimelineService {
-  private timelineEvents: TimelineEvent[] = [...SYNTHETIC_TIMELINE];
+  private timelineEvents: TimelineEvent[] = [...ALL_TIMELINE];
 
   public getTimeline(options?: {
+    caseId?: string;
     entityId?: string;
     typeFilter?: TimelineEventType | 'ALL';
     order?: 'asc' | 'desc';
   }): TimelineEvent[] {
     let result = [...this.timelineEvents];
+
+    if (options?.caseId && options.caseId !== 'ALL' && options.caseId !== 'ALL-OPERATIONS') {
+      const targetCase = investigationService.getCaseById(options.caseId);
+      const caseEntityIds = new Set(targetCase?.entityIds || []);
+      result = result.filter((event) => {
+        if (event.caseId) return event.caseId === options.caseId;
+        return event.entityIds.some((id) => caseEntityIds.has(id));
+      });
+    }
 
     if (options?.entityId) {
       result = result.filter((event) => event.entityIds.includes(options.entityId!));

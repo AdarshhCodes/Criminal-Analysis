@@ -1,6 +1,24 @@
 import { InvestigationQueryResult } from '../types';
 import { investigationService } from './investigationService';
 
+export interface PredictiveInsight {
+  id: string;
+  /** Short flag title */
+  title: string;
+  /** Plain-language explanation grounded in real data */
+  description: string;
+  /** "Based on" citation exactly like existing search results */
+  basedOn: string;
+  /** Severity level for colour coding (reuses Phase A system) */
+  severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
+  /** Which case this relates to */
+  caseCode: string;
+  caseName: string;
+  /** Entity / evidence ids so the UI can navigate */
+  entityId?: string;
+  evidenceId?: string;
+}
+
 class IntelligenceService {
   /**
    * Deterministic Natural Language Investigation Engine
@@ -229,6 +247,121 @@ class IntelligenceService {
       };
     }
 
+    // Case 6: Predictive – what happens next / forecast / likely next step
+    if (
+      q.includes('likely') ||
+      q.includes('next') ||
+      q.includes('predict') ||
+      q.includes('forecast') ||
+      q.includes('what will') ||
+      q.includes('what could') ||
+      q.includes('anticipate')
+    ) {
+      // Derive from real data: cross-case financial trail + active high-risk entities
+      const allRels = investigationService.getRelationships('ALL');
+      const crossCaseRel = allRels.find((r) => r.id === 'IF-REL-X01');
+      const vikkyRawat = investigationService.getEntityById('IF-P-060');
+
+      const crossCaseAmount = crossCaseRel?.metadata?.amount || '₹8.2 Lakh';
+      const victimsTargeted = (vikkyRawat?.metadata?.victimsTargeted as number) || 18;
+
+      return {
+        query: queryText,
+        answer:
+          `Based on current trajectory analysis, three escalations are likely: (1) Syndicate leader Vikramaditya Rawat (Risk 96/100), who has already targeted ${victimsTargeted} victims, is predicted to expand the extortion campaign to 2–3 additional college networks within 2 weeks unless the Rohini safehouse is raided. (2) The cross-case financial conduit between Sameer Merchant (Operation Rakshak) and the Operation Falcon hawala corridor (${crossCaseAmount} already transferred via IF-REL-X01) is likely to accelerate as extortion volume grows — a second batch withdrawal from Canara Bank A/c 4091823901 is anticipated. (3) Operation Chimera's synthetic identity burst velocity (340 loan apps/hour) indicates a planned exhaustion of the Aadhaar scrape before the EOW freeze order propagates, likely within 72 hours.`,
+        confidence: 83,
+        reasoningSummary:
+          'Predictive Agent correlated escalation velocity from IF-EVD-022 (UPI trail growth rate), the confirmed cross-case financial bridge IF-REL-X01 linking Rakshak mule aggregator to Falcon hawala escrow, and Chimera loan burst cadence detected in IF-EVD-030 forensic hard-drive analysis. No external AI calls were made; all projections are derived from timestamped evidence already in the system.',
+        agentSteps: [
+          {
+            agentName: 'Predictive Pattern Agent',
+            status: 'COMPLETED',
+            action: 'Velocity & Escalation Trend Analysis',
+            finding: `Rakshak extortion rate: +14 victims in 14 days. Predicted next 14-day expansion: 3 new campus networks. Evidence: IF-EVD-022, IF-EVD-020.`,
+            confidence: 84,
+            durationMs: 55,
+          },
+          {
+            agentName: 'Cross-Case Financial Agent',
+            status: 'COMPLETED',
+            action: 'Cross-Case Transfer Recurrence Projection',
+            finding: `IF-REL-X01 shows ${crossCaseAmount} already routed Rakshak → Falcon. Pattern matches bi-weekly Falcon hawala cycle. Next transfer window: ~7 days. Evidence: IF-EVD-022.`,
+            confidence: 81,
+            durationMs: 60,
+          },
+          {
+            agentName: 'Fraud Velocity Agent',
+            status: 'COMPLETED',
+            action: 'Synthetic Identity Exhaustion Timer',
+            finding: '340 apps/hour burst rate. Aadhaar scrape dataset estimated 1,400 records (IF-EVD-030). At current velocity: 4.1 hours to exhaustion. EOW freeze propagation lag: 72 hours.',
+            confidence: 85,
+            durationMs: 48,
+          },
+        ],
+        pathNodeIds: ['IF-P-063', 'IF-ACC-010', 'IF-ACC-002', 'IF-P-060'],
+        pathEdgeIds: ['IF-REL-X01', 'IF-REL-065'],
+        evidenceIds: ['IF-EVD-022', 'IF-EVD-020', 'IF-EVD-030'],
+        verificationStatus: 'AI_SUGGESTED',
+        suggestedFollowUps: [
+          'Inspect cross-case financial bridge IF-REL-X01 (Sameer Merchant → Falcon hawala)',
+          'Issue immediate ATM freeze on Canara Bank A/c 4091823901',
+          'Request EOW to accelerate Aadhaar scrape freeze propagation',
+        ],
+      };
+    }
+
+    // Case 7: Suggest likely connections for a named entity (cross-case link suggestion)
+    if (
+      q.includes('suggest') ||
+      q.includes('connection') ||
+      q.includes('linked to') ||
+      q.includes('who is') ||
+      q.includes('sameer') ||
+      q.includes('merchant') ||
+      (q.includes('cross') && q.includes('case'))
+    ) {
+      const crossCaseRel = investigationService.getRelationships('ALL').find((r) => r.id === 'IF-REL-X01');
+      const crossCaseFinLinks = investigationService.getCrossFinancialLinks('IF-P-063');
+
+      const confidence = crossCaseRel?.confidence || 81;
+
+      return {
+        query: queryText,
+        answer:
+          `Likely cross-case connection identified: Sameer Merchant (IF-P-063, Rakshak mule aggregator) is financially linked to the Operation Falcon hawala corridor via bank account IF-ACC-002 (SBI Hawala Corridor). NPCI transaction graph analysis (IF-EVD-022) detected ₹8.2 Lakh transferred from Canara Bank mule account to the Falcon hawala escrow within 48 hours of a Rakshak extortion cycle — matching the Falcon syndicate's known dispersal schedule. This suggests Merchant is either knowingly serving as a laundering conduit between two criminal networks, or the Falcon network is consolidating multiple crime streams. Confidence: ${confidence}%.`,
+        confidence,
+        reasoningSummary:
+          `Cross-Case Financial Agent analysed ${crossCaseFinLinks.length > 0 ? crossCaseFinLinks.length : 1} outbound financial link(s) from entity IF-P-063 across all cases. Velocity and amount pattern matching against Falcon hawala dispersal schedule (IF-REL-X01, AI_SUGGESTED) yields ${confidence}% overlap. This is the only AI_SUGGESTED cross-case relationship in the portfolio currently awaiting human verification.`,
+        agentSteps: [
+          {
+            agentName: 'Cross-Case Graph Agent',
+            status: 'COMPLETED',
+            action: 'Portfolio-Wide Financial Link Discovery',
+            finding: `Entity IF-P-063 (Sameer Merchant) owns 14 mule accounts. Cross-case relationship IF-REL-X01 connects Canara Bank mule (Rakshak) → SBI Hawala Account (Falcon). Evidence: IF-EVD-022.`,
+            confidence: 81,
+            durationMs: 72,
+          },
+          {
+            agentName: 'Pattern Matching Agent',
+            status: 'COMPLETED',
+            action: 'Dispersal Cycle Timestamp Correlation',
+            finding: 'Transfer timing (48h post-extortion) correlates with Falcon syndicate bi-weekly hawala cycle documented in IF-EVD-005 and IF-EVD-006.',
+            confidence: confidence,
+            durationMs: 55,
+          },
+        ],
+        pathNodeIds: ['IF-P-063', 'IF-ACC-010', 'IF-ACC-002'],
+        pathEdgeIds: ['IF-REL-064', 'IF-REL-X01'],
+        evidenceIds: ['IF-EVD-022', 'IF-EVD-005'],
+        verificationStatus: 'AI_SUGGESTED',
+        suggestedFollowUps: [
+          'Verify cross-case relationship IF-REL-X01 (Sameer Merchant → Falcon hawala)',
+          'Ask: "What is likely to happen next in Operation Rakshak?"',
+          'Issue freeze on Canara Bank A/c 4091823901 before next transfer window',
+        ],
+      };
+    }
+
     // Default Fallback deterministic answer
     const entities = investigationService.getEntities(caseId);
     const topEntities = entities.slice(0, 4);
@@ -304,6 +437,72 @@ class IntelligenceService {
       description: `Discovered connection with ${raw.hopCount} hops between ${sourceEnt?.name || sourceId} and ${targetEnt?.name || targetId}.`,
       chainSummary: raw.nodeIds.map((id) => investigationService.getEntityById(id)?.name || id).join(' → '),
     };
+  }
+
+  /**
+   * Generate 2–3 auto-derived, data-grounded predictive flags for the Dashboard.
+   * Every flag references a real case, entity, and/or evidence ID.
+   */
+  public generatePredictiveInsights(): PredictiveInsight[] {
+    const insights: PredictiveInsight[] = [];
+
+    // Insight 1 — Cross-case financial bridge (based on IF-REL-X01, the only cross-case
+    // AI_SUGGESTED relationship in the dataset: Sameer Merchant → Falcon hawala account)
+    const crossCaseRel = investigationService.getRelationships('ALL').find((r) => r.id === 'IF-REL-X01');
+    const sameerMerchant = investigationService.getEntityById('IF-P-063');
+    if (crossCaseRel && sameerMerchant) {
+      insights.push({
+        id: 'PI-001',
+        title: 'Cross-Case Financial Bridge Unverified',
+        description:
+          `Sameer Merchant (Rakshak mule aggregator, Risk ${sameerMerchant.riskScore}/100) is linked to the Operation Falcon hawala corridor via ₹8.2 Lakh transfer (IF-REL-X01, ${crossCaseRel.confidence}% confidence). This cross-case bridge is awaiting human verification and may indicate a shared financial network between two separate criminal syndicates.`,
+        basedOn: 'Based on: IF-REL-X01 (NPCI transaction graph), IF-EVD-022 (UPI trail ledger), IF-P-063 (Sameer Merchant, Rakshak)',
+        severity: 'HIGH',
+        caseCode: 'IF-2026-0741 ↔ IF-2026-0882',
+        caseName: 'Operation Rakshak ↔ Operation Falcon',
+        entityId: 'IF-P-063',
+        evidenceId: 'IF-EVD-022',
+      });
+    }
+
+    // Insight 2 — Escalating active case: Rakshak has CRITICAL priority + ACTIVE status
+    // with the highest victim count in the portfolio (18 targets, still growing)
+    const vikkyRawat = investigationService.getEntityById('IF-P-060');
+    if (vikkyRawat) {
+      const victimsTargeted = (vikkyRawat.metadata?.victimsTargeted as number) || 18;
+      insights.push({
+        id: 'PI-002',
+        title: 'Escalating Victim Count — Immediate Threat',
+        description:
+          `Operation Rakshak (IF-2026-0741, CRITICAL / ACTIVE) has ${victimsTargeted} confirmed victims with Vikramaditya Rawat (Risk 96/100) still at large. The extortion cycle shows 14 new victims added in 14 days. At this velocity, 2–3 additional college networks are likely targeted within 2 weeks without intervention.`,
+        basedOn: 'Based on: IF-EVD-020 (Telegram harassment archive), IF-EVD-023 (wiretap intercept), IF-P-060 (Vikramaditya Rawat)',
+        severity: 'CRITICAL',
+        caseCode: 'IF-2026-0741',
+        caseName: 'Operation Rakshak',
+        entityId: 'IF-P-060',
+        evidenceId: 'IF-EVD-020',
+      });
+    }
+
+    // Insight 3 — Chimera synthetic identity burst: 340 apps/hour against 1,400 record dataset
+    // signals a time-critical window before the scrape is exhausted
+    const dineshKhurana = investigationService.getEntityById('IF-P-070');
+    if (dineshKhurana) {
+      insights.push({
+        id: 'PI-003',
+        title: 'Synthetic Identity Burst — 72-Hour Window',
+        description:
+          `Operation Chimera (IF-2026-0519, HIGH / UNDER REVIEW): Bulk SMS gateway dispatched 45,000 phishing links per day (IF-PH-020). The seized hard drive (IF-EVD-030) contains 1,400 forged Aadhaar templates. At the observed 340 loan applications/hour velocity, the dataset will be exhausted before EOW freeze propagation — creating a 72-hour window for further fraud.`,
+        basedOn: 'Based on: IF-EVD-030 (1,400 forged Aadhaar scans, EOW raid), IF-PH-020 (bulk SMS gateway, 45K SMS/day), IF-P-070 (Dinesh Khurana)',
+        severity: 'HIGH',
+        caseCode: 'IF-2026-0519',
+        caseName: 'Operation Chimera',
+        entityId: 'IF-P-070',
+        evidenceId: 'IF-EVD-030',
+      });
+    }
+
+    return insights;
   }
 }
 

@@ -1,21 +1,31 @@
 import { Entity, Relationship, Case } from '../types';
-import { DEMO_CASES, SYNTHETIC_ENTITIES, SYNTHETIC_RELATIONSHIPS } from '../data';
+import {
+  COMBINED_CASES,
+  ALL_ENTITIES,
+  ALL_RELATIONSHIPS,
+  ALL_CASES_PORTFOLIO,
+} from '../data';
 
 class InvestigationService {
-  private cases: Case[] = [...DEMO_CASES];
-  private entities: Entity[] = [...SYNTHETIC_ENTITIES];
-  private relationships: Relationship[] = [...SYNTHETIC_RELATIONSHIPS];
+  private cases: Case[] = [...COMBINED_CASES];
+  private entities: Entity[] = [...ALL_ENTITIES];
+  private relationships: Relationship[] = [...ALL_RELATIONSHIPS];
 
   public getCases(): Case[] {
     return [...this.cases];
   }
 
   public getCaseById(caseId: string): Case | undefined {
+    if (caseId === 'ALL' || caseId === 'ALL-OPERATIONS') {
+      return ALL_CASES_PORTFOLIO;
+    }
     return this.cases.find((c) => c.id === caseId || c.code === caseId);
   }
 
   public getEntities(caseId?: string): Entity[] {
-    if (!caseId) return [...this.entities];
+    if (!caseId || caseId === 'ALL' || caseId === 'ALL-OPERATIONS') {
+      return [...this.entities];
+    }
     const targetCase = this.getCaseById(caseId);
     if (!targetCase) return [...this.entities];
     return this.entities.filter((e) => targetCase.entityIds.includes(e.id));
@@ -30,7 +40,9 @@ class InvestigationService {
   }
 
   public getRelationships(caseId?: string): Relationship[] {
-    if (!caseId) return [...this.relationships];
+    if (!caseId || caseId === 'ALL' || caseId === 'ALL-OPERATIONS') {
+      return [...this.relationships];
+    }
     const caseEntities = new Set(this.getEntities(caseId).map((e) => e.id));
     return this.relationships.filter(
       (r) => caseEntities.has(r.sourceId) && caseEntities.has(r.targetId)
@@ -39,6 +51,138 @@ class InvestigationService {
 
   public getRelationshipById(id: string): Relationship | undefined {
     return this.relationships.find((r) => r.id === id);
+  }
+
+  /**
+   * Find which case an entity belongs to
+   */
+  public getCaseForEntity(entityId: string): Case | undefined {
+    return this.cases.find((c) => c.entityIds.includes(entityId));
+  }
+
+  /**
+   * Get all cases flagged as women-related or critical priority
+   */
+  public getCriticalAndWomenCases(): Case[] {
+    return this.cases.filter(
+      (c) =>
+        c.priority === 'CRITICAL' ||
+        (c.caseFlags && (c.caseFlags.includes('WOMEN_RELATED') || c.caseFlags.includes('CRITICAL')))
+    );
+  }
+
+  /**
+   * Find all other cases an entity appears in (cross-case person linking).
+   * Returns an array of { case, role } entries for every case OTHER than the one
+   * that currently owns the entity.
+   */
+  public getCrossAppearances(
+    entityId: string
+  ): { caseItem: Case; roleLabel: string }[] {
+    const ownerCase = this.getCaseForEntity(entityId);
+    const entity = this.getEntityDetails(entityId);
+    if (!entity) return [];
+
+    return this.cases
+      .filter((c) => c.id !== ownerCase?.id && c.entityIds.includes(entityId))
+      .map((c) => ({
+        caseItem: c,
+        roleLabel:
+          entity.personClassification === 'ACCUSED'
+            ? `Accused in ${c.name}`
+            : entity.personClassification === 'VICTIM'
+            ? `Victim in ${c.name}`
+            : entity.personClassification === 'WITNESS'
+            ? `Witness in ${c.name}`
+            : entity.personClassification === 'SUSPECT'
+            ? `Suspect in ${c.name}`
+            : `Entity in ${c.name}`,
+      }));
+  }
+
+  /**
+   * Find financial links for an entity across ALL cases.
+   * Returns a list of relationships involving bank accounts, transactions,
+   * or financial evidence that span more than one case.
+   */
+  public getCrossFinancialLinks(entityId: string): {
+    caseItem: Case;
+    relatedEntityName: string;
+    relatedEntityId: string;
+    linkType: string;
+    amount?: string;
+    evidenceId?: string;
+  }[] {
+    const entity = this.getEntityDetails(entityId);
+    if (!entity) return [];
+
+    const results: {
+      caseItem: Case;
+      relatedEntityName: string;
+      relatedEntityId: string;
+      linkType: string;
+      amount?: string;
+      evidenceId?: string;
+    }[] = [];
+
+    // Walk all relationships involving this entity
+    for (const rel of this.relationships) {
+      const otherId =
+        rel.sourceId === entityId
+          ? rel.targetId
+          : rel.targetId === entityId
+          ? rel.sourceId
+          : null;
+
+      if (!otherId) continue;
+
+      const otherEntity = this.getEntityDetails(otherId);
+      if (!otherEntity) continue;
+
+      // Only financial link types
+      const isFinancialRel =
+        ['TRANSFERRED', 'OWNS', 'FINANCIAL_LINK', 'CONTROLS'].includes(rel.type) &&
+        ['BANK_ACCOUNT', 'TRANSACTION', 'ORGANIZATION'].includes(otherEntity.type);
+
+      if (!isFinancialRel) continue;
+
+      // Find all cases that contain the other entity
+      for (const c of this.cases) {
+        if (!c.entityIds.includes(otherId)) continue;
+        // Only include if the OTHER entity belongs to a DIFFERENT case than this entity
+        const ownerCase = this.getCaseForEntity(entityId);
+        if (c.id === ownerCase?.id) continue;
+
+        const amountMeta =
+          otherEntity.metadata?.estimatedVolume ||
+          otherEntity.metadata?.amount;
+
+        results.push({
+          caseItem: c,
+          relatedEntityName: otherEntity.name,
+          relatedEntityId: otherId,
+          linkType: rel.label || rel.type.replace('_', ' '),
+          amount: amountMeta ? String(amountMeta) : undefined,
+          evidenceId: rel.evidenceIds[0],
+        });
+      }
+    }
+
+    return results;
+  }
+
+  /**
+   * Get high priority targets across all cases or for a single case
+   */
+  public getHighRiskTargets(caseId?: string, minScore: number = 75): (Entity & { caseInfo?: Case })[] {
+    const list = this.getEntities(caseId);
+    return list
+      .filter((e) => e.riskScore >= minScore)
+      .map((e) => ({
+        ...e,
+        caseInfo: this.getCaseForEntity(e.id),
+      }))
+      .sort((a, b) => b.riskScore - a.riskScore);
   }
 
   /**

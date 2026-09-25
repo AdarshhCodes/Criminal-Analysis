@@ -33,6 +33,8 @@ export const AICopilotPage: React.FC = () => {
     'Find suspicious transactions involving these suspects.',
     'Why is this person considered high risk?',
     'Show relationships established after January 2025.',
+    'What is likely to happen next in Operation Rakshak?',
+    'Suggest likely connections for Sameer Merchant across cases.',
   ];
 
   return (
