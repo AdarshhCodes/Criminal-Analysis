@@ -1,0 +1,177 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Light theme values (crisp, professional, tactical high-contrast light mode) */
+  :root, html.light {
+    color-scheme: light;
+    --forge-bg: 241 245 249;          /* #f1f5f9 slate-100 */
+    --forge-panel: 255 255 255;       /* #ffffff */
+    --forge-card: 255 255 255;        /* #ffffff */
+    --forge-card-hover: 248 250 252;  /* #f8fafc slate-50 */
+    --forge-border: 203 213 225;      /* #cbd5e1 slate-300 */
+    --forge-border-light: 226 232 240;/* #e2e8f0 slate-200 */
+    --forge-cyan: 2 132 199;          /* #0284c7 sky-600 */
+    --forge-cyan-light: 14 165 233;   /* #0ea5e9 sky-500 */
+    --forge-emerald: 5 150 105;       /* #059669 emerald-600 */
+    --forge-amber: 217 119 6;         /* #d97706 amber-600 */
+    --forge-rose: 225 29 72;          /* #e11d48 rose-600 */
+    --forge-purple: 147 51 234;       /* #9333ea purple-600 */
+    --forge-indigo: 79 70 229;        /* #4f46e5 indigo-600 */
+    --forge-text-primary: 15 23 42;    /* #0f172a slate-900 */
+    --forge-text-secondary: 51 65 85;  /* #334155 slate-700 */
+    --forge-text-muted: 100 116 139;  /* #64748b slate-500 */
+    --forge-shadow-panel: 0 4px 20px -2px rgba(0, 0, 0, 0.08), 0 0 1px 1px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Dark theme values (matches original dark mode 100% exactly) */
+  html.dark, :root.dark {
+    color-scheme: dark;
+    --forge-bg: 8 12 20;              /* #080c14 */
+    --forge-panel: 13 19 31;          /* #0d131f */
+    --forge-card: 17 25 40;           /* #111928 */
+    --forge-card-hover: 22 34 56;     /* #162238 */
+    --forge-border: 30 41 59;         /* #1e293b */
+    --forge-border-light: 42 58 84;   /* #2a3a54 */
+    --forge-cyan: 6 182 212;          /* #06b6d4 */
+    --forge-cyan-light: 56 189 248;   /* #38bdf8 */
+    --forge-emerald: 16 185 129;      /* #10b981 */
+    --forge-amber: 245 158 11;        /* #f59e0b */
+    --forge-rose: 244 63 94;          /* #f43f5e */
+    --forge-purple: 168 85 247;       /* #a855f7 */
+    --forge-indigo: 99 102 241;       /* #6366f1 */
+    --forge-text-primary: 248 250 252;/* #f8fafc */
+    --forge-text-secondary: 148 163 184; /* #94a3b8 */
+    --forge-text-muted: 100 116 139;  /* #64748b */
+    --forge-shadow-panel: 0 4px 20px -2px rgba(0, 0, 0, 0.5), 0 0 1px 1px rgba(255, 255, 255, 0.05);
+  }
+
+  body {
+    background-color: rgb(var(--forge-bg));
+    color: rgb(var(--forge-text-primary));
+    overflow-x: hidden;
+  }
+}
+
+/* Custom Tactical Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(var(--forge-panel));
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--forge-border));
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--forge-border-light));
+}
+
+/* Cytoscape Canvas Container */
+.cytoscape-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: radial-gradient(circle at 50% 50%, #0d1527 0%, #080c14 100%);
+}
+
+html:not(.dark) .cytoscape-container {
+  background: radial-gradient(circle at 50% 50%, #f8fafc 0%, #e2e8f0 100%);
+}
+
+/* Subtle tactical grid background */
+.tactical-grid {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+}
+
+html:not(.dark) .tactical-grid {
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+}
+
+/* Light mode text contrast adaptation for general text-white classes */
+html:not(.dark) .text-white:not(
+  [class*="bg-forge-rose"],
+  [class*="bg-forge-cyan"],
+  [class*="bg-forge-amber"],
+  [class*="bg-forge-emerald"],
+  [class*="bg-rose-"],
+  [class*="bg-red-"],
+  [class*="bg-emerald-"],
+  [class*="bg-green-"],
+  [class*="bg-amber-"],
+  [class*="bg-yellow-"],
+  [class*="bg-cyan-"],
+  [class*="bg-sky-"],
+  [class*="bg-indigo-"],
+  [class*="bg-blue-"],
+  [class*="bg-purple-"],
+  [class*="bg-violet-"],
+  [class*="bg-slate-900"],
+  [class*="bg-black"],
+  .keep-white
+) {
+  color: #0f172a;
+}
+
+html:not(.dark) .hover\:text-white:hover:not(
+  [class*="bg-forge-rose"],
+  [class*="bg-forge-cyan"],
+  [class*="bg-forge-amber"],
+  [class*="bg-forge-emerald"],
+  [class*="bg-rose-"],
+  [class*="bg-red-"],
+  [class*="bg-emerald-"],
+  [class*="bg-green-"],
+  [class*="bg-amber-"],
+  [class*="bg-yellow-"],
+  [class*="bg-cyan-"],
+  [class*="bg-sky-"],
+  [class*="bg-indigo-"],
+  [class*="bg-blue-"],
+  [class*="bg-purple-"],
+  [class*="bg-violet-"],
+  [class*="bg-slate-900"],
+  [class*="bg-black"],
+  .keep-white
+) {
+  color: #0f172a;
+}
+
+/* Ensure solid badges/buttons always keep crisp white text in light mode */
+html:not(.dark) :is(
+  [class*="bg-forge-rose"]:not([class*="/"]),
+  [class*="bg-forge-cyan"]:not([class*="/"]),
+  [class*="bg-forge-amber"]:not([class*="/"]),
+  [class*="bg-forge-emerald"]:not([class*="/"]),
+  [class*="bg-rose-"]:not([class*="/"]),
+  [class*="bg-red-"]:not([class*="/"]),
+  [class*="bg-emerald-"]:not([class*="/"]),
+  [class*="bg-green-"]:not([class*="/"]),
+  [class*="bg-amber-"]:not([class*="/"]),
+  [class*="bg-yellow-"]:not([class*="/"]),
+  [class*="bg-cyan-"]:not([class*="/"]),
+  [class*="bg-sky-"]:not([class*="/"]),
+  [class*="bg-indigo-"]:not([class*="/"]),
+  [class*="bg-blue-"]:not([class*="/"]),
+  [class*="bg-purple-"]:not([class*="/"]),
+  [class*="bg-slate-900"],
+  [class*="bg-black"]
+) :is(.text-white, .hover\:text-white:hover) {
+  color: #ffffff !important;
+}
+
+/* Smooth theme transitions */
+body, header, aside, main, .bg-forge-bg, .bg-forge-panel, .bg-forge-card {
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
