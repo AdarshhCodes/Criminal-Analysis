@@ -118,7 +118,10 @@ ATTESTED BY: Central Cyber Forensic Laboratory & Special Cell`;
   const isFlagged = Boolean(viewingEvidence.metadata?.flagged);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
+      onClick={closeEvidenceModal}
+    >
       <div
         className="bg-forge-panel border border-forge-cyan/40 rounded-xl shadow-2xl w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden text-forge-text-primary"
         onClick={(e) => e.stopPropagation()}

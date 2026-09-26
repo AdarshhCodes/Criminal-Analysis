@@ -27,7 +27,6 @@ import {
 import { ExecutiveKpiRibbon } from '../components/dashboard/ExecutiveKpiRibbon';
 import { CriticalCasesSegment } from '../components/dashboard/CriticalCasesSegment';
 import { WomenCrimeSection } from '../components/dashboard/WomenCrimeSection';
-import { IndiaCrimeMap } from '../components/dashboard/IndiaCrimeMap';
 import { CrimeStatisticsCharts } from '../components/dashboard/CrimeStatisticsCharts';
 import { PredictiveInsightsPanel } from '../components/dashboard/PredictiveInsightsPanel';
 
@@ -264,15 +263,6 @@ export const CommandCentrePage: React.FC = () => {
         onSelectCase={(caseId) => selectCase(caseId)}
       />
 
-      {/* ===================================================================== */}
-      {/* 5. FULL INDIA MAP: NATIONAL GEOGRAPHIC SURVEILLANCE                   */}
-      {/* ===================================================================== */}
-      <IndiaCrimeMap
-        cases={allCases}
-        selectedState={selectedState}
-        onSelectState={setSelectedState}
-        onSelectCase={(caseId) => selectCase(caseId)}
-      />
 
       {/* ===================================================================== */}
       {/* 6. CRIME STATISTICS VISUAL ANALYTICS (CHARTS)                         */}
@@ -372,8 +362,29 @@ export const CommandCentrePage: React.FC = () => {
         </div>
 
         {/* Cases Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredAndSortedCases.map((caseItem) => {
+        {filteredAndSortedCases.length === 0 ? (
+          <div className="p-8 text-center bg-forge-bg/60 rounded-xl border border-forge-border border-dashed space-y-3 font-mono">
+            <div className="w-10 h-10 mx-auto rounded-full bg-forge-card flex items-center justify-center text-forge-text-muted border border-forge-border">
+              <Search className="w-5 h-5 text-forge-cyan" />
+            </div>
+            <div className="text-sm font-bold text-white">No Investigation Files Match Current Criteria</div>
+            <p className="text-xs text-forge-text-muted max-w-md mx-auto font-sans">
+              No active investigation records match your status filter, state jurisdiction filter, or search keywords.
+            </p>
+            <button
+              onClick={() => {
+                setStatusFilter('ALL');
+                setSelectedState(null);
+                setSearchQuery('');
+              }}
+              className="px-3 py-1.5 rounded-lg bg-forge-cyan/20 hover:bg-forge-cyan/30 text-forge-cyan border border-forge-cyan/40 text-xs font-bold transition font-mono"
+            >
+              Reset Filters &amp; Search
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredAndSortedCases.map((caseItem) => {
             const isWomen = caseItem.caseFlags?.includes('WOMEN_RELATED');
             const isCritical = caseItem.priority === 'CRITICAL';
 
@@ -489,6 +500,7 @@ export const CommandCentrePage: React.FC = () => {
             );
           })}
         </div>
+      )}
       </div>
 
       {/* ===================================================================== */}

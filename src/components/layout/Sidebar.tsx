@@ -11,6 +11,7 @@ import {
   FileText,
   ShieldAlert,
   Settings,
+  X,
 } from 'lucide-react';
 import { useInvestigationStore } from '../../stores';
 
@@ -23,7 +24,7 @@ interface NavItem {
 }
 
 export const Sidebar: React.FC = () => {
-  const { currentCase } = useInvestigationStore();
+  const { currentCase, isMobileSidebarOpen, toggleMobileSidebar } = useInvestigationStore();
 
   const navigationItems: NavItem[] = [
     { name: 'Command Centre', path: '/command-centre', icon: LayoutDashboard },
@@ -51,12 +52,39 @@ export const Sidebar: React.FC = () => {
   ];
 
   return (
-    <aside className="w-60 bg-forge-panel border-r border-forge-border flex flex-col justify-between select-none shrink-0 z-20">
-      {/* Navigation Links */}
-      <div className="p-3 space-y-1 overflow-y-auto">
-        <div className="px-3 py-1.5 text-[10px] font-mono tracking-wider text-forge-text-muted uppercase">
-          WORKSPACE NAVIGATION
-        </div>
+    <>
+      {/* Mobile Backdrop Overlay */}
+      {isMobileSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/70 backdrop-blur-xs z-40 lg:hidden"
+          onClick={() => toggleMobileSidebar(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      <aside
+        className={`bg-forge-panel border-r border-forge-border flex flex-col justify-between select-none shrink-0 transition-transform duration-200 ${
+          isMobileSidebarOpen
+            ? 'fixed inset-y-0 left-0 z-50 w-64 shadow-2xl translate-x-0'
+            : 'hidden lg:flex w-60 z-20'
+        }`}
+      >
+        {/* Navigation Links */}
+        <div className="p-3 space-y-1 overflow-y-auto">
+          <div className="flex items-center justify-between px-3 py-1.5">
+            <span className="text-[10px] font-mono tracking-wider text-forge-text-muted uppercase">
+              WORKSPACE NAVIGATION
+            </span>
+            {isMobileSidebarOpen && (
+              <button
+                onClick={() => toggleMobileSidebar(false)}
+                className="p-1 rounded text-forge-text-muted hover:text-white lg:hidden"
+                title="Close Navigation Drawer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
 
         {navigationItems.map((item) => {
           const Icon = item.icon;
@@ -64,6 +92,7 @@ export const Sidebar: React.FC = () => {
             <NavLink
               key={item.path}
               to={item.path}
+              onClick={() => toggleMobileSidebar(false)}
               className={({ isActive }) =>
                 `flex items-center justify-between px-3 py-2 rounded text-xs transition font-medium ${
                   isActive
@@ -119,5 +148,6 @@ export const Sidebar: React.FC = () => {
         </div>
       </div>
     </aside>
+  </>
   );
 };

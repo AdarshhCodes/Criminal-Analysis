@@ -12,6 +12,7 @@ import {
   Car,
   PhoneCall,
   Globe,
+  X,
 } from 'lucide-react';
 import { useInvestigationStore } from '../../stores';
 import { Entity } from '../../types';
@@ -127,6 +128,7 @@ export const GraphMapView: React.FC = () => {
   const { selectEntity } = useInvestigationStore();
   const [zoomLevel, setZoomLevel] = useState<number>(1);
   const [selectedGeoPoint, setSelectedGeoPoint] = useState<TacticalGeoPoint | null>(GEO_LOCATIONS[0]);
+  const [lastDismissedGeoPoint, setLastDismissedGeoPoint] = useState<TacticalGeoPoint | null>(null);
   const [activeFilter, setActiveFilter] = useState<string>('ALL');
   const [viewScope, setViewScope] = useState<'NCR' | 'GLOBAL'>('NCR');
 
@@ -457,16 +459,29 @@ export const GraphMapView: React.FC = () => {
               <h3 className="text-sm font-bold text-white font-sans">{selectedGeoPoint.name}</h3>
             </div>
 
-            {selectedGeoPoint.entityId && (
+            <div className="flex items-center space-x-1.5">
+              {selectedGeoPoint.entityId && (
+                <button
+                  onClick={() => handlePointClick(selectedGeoPoint)}
+                  className="px-2 py-1 rounded bg-forge-cyan/15 hover:bg-forge-cyan/25 border border-forge-cyan/40 text-forge-cyan text-[11px] font-bold flex items-center space-x-1 transition"
+                  title="Inspect in Context Dossier"
+                >
+                  <span>DOSSIER</span>
+                  <ExternalLink className="w-3 h-3" />
+                </button>
+              )}
+
               <button
-                onClick={() => handlePointClick(selectedGeoPoint)}
-                className="px-2 py-1 rounded bg-forge-cyan/15 hover:bg-forge-cyan/25 border border-forge-cyan/40 text-forge-cyan text-[11px] font-bold flex items-center space-x-1 transition"
-                title="Inspect in Context Dossier"
+                onClick={() => {
+                  setLastDismissedGeoPoint(selectedGeoPoint);
+                  setSelectedGeoPoint(null);
+                }}
+                className="p-1 rounded text-forge-text-muted hover:text-white hover:bg-forge-bg transition"
+                title="Dismiss Inspector"
               >
-                <span>DOSSIER</span>
-                <ExternalLink className="w-3 h-3" />
+                <X className="w-3.5 h-3.5" />
               </button>
-            )}
+            </div>
           </div>
 
           <p className="text-xs text-forge-text-secondary leading-relaxed font-sans">{selectedGeoPoint.role}</p>
@@ -490,6 +505,18 @@ export const GraphMapView: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Restore Button for Dismissed Geo Point Inspector */}
+      {!selectedGeoPoint && lastDismissedGeoPoint && (
+        <button
+          onClick={() => setSelectedGeoPoint(lastDismissedGeoPoint)}
+          className="absolute bottom-3 right-3 z-20 pointer-events-auto bg-forge-card/95 backdrop-blur border border-forge-cyan/40 text-forge-cyan px-3.5 py-2 rounded-xl text-xs font-mono font-bold flex items-center space-x-2 shadow-panel hover:bg-forge-panel transition"
+          title="Reopen tactical target inspector"
+        >
+          <MapPin className="w-3.5 h-3.5" />
+          <span>Inspect Target: {lastDismissedGeoPoint.name}</span>
+        </button>
       )}
     </div>
   );

@@ -89,6 +89,21 @@ export const AuditTrailPage: React.FC = () => {
   // Action Badge formatting
   const getActionBadge = (action: string) => {
     switch (action) {
+      case 'CASE_CREATED':
+      case 'CASE_INITIATED':
+        return 'bg-emerald-950/40 text-emerald-300 border-emerald-600/40';
+      case 'CASE_UPDATED':
+        return 'bg-amber-950/40 text-amber-300 border-amber-600/40';
+      case 'EVIDENCE_ADDED':
+        return 'bg-indigo-950/40 text-indigo-300 border-indigo-600/40';
+      case 'PERSON_LINKED':
+        return 'bg-purple-950/40 text-purple-300 border-purple-600/40';
+      case 'REPORT_GENERATED':
+        return 'bg-cyan-950/40 text-cyan-300 border-cyan-500/40';
+      case 'SEARCH_PERFORMED':
+        return 'bg-sky-950/40 text-sky-300 border-sky-600/40';
+      case 'STATUS_CHANGED':
+        return 'bg-rose-950/40 text-rose-300 border-rose-500/40';
       case 'RELATIONSHIP_VERIFIED':
         return 'bg-forge-emerald/20 text-forge-emerald border-forge-emerald/40';
       case 'RELATIONSHIP_REJECTED':
@@ -101,8 +116,6 @@ export const AuditTrailPage: React.FC = () => {
         return 'bg-cyan-950/40 text-cyan-300 border-cyan-600/40';
       case 'ALERT_ACKNOWLEDGED':
         return 'bg-blue-950/40 text-blue-300 border-blue-600/40';
-      case 'CASE_INITIATED':
-        return 'bg-slate-800 text-slate-300 border-slate-600';
       default:
         return 'bg-forge-card text-white border-forge-border';
     }
@@ -242,12 +255,32 @@ export const AuditTrailPage: React.FC = () => {
 
       {/* Cryptographic Block Cards List */}
       <div className="space-y-4">
-        {filteredBlocks.map((b: AuditEvent) => {
-          const timeFormatted = new Date(b.timestamp).toLocaleString('en-IN', {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,
-          });
+        {filteredBlocks.length === 0 ? (
+          <div className="p-8 text-center bg-forge-card rounded-lg border border-forge-border border-dashed space-y-3 font-mono">
+            <div className="w-10 h-10 mx-auto rounded-full bg-forge-bg flex items-center justify-center text-forge-text-muted border border-forge-border">
+              <Search className="w-5 h-5 text-forge-cyan" />
+            </div>
+            <div className="text-sm font-bold text-white">No Audit Blocks Match Current Criteria</div>
+            <p className="text-xs text-forge-text-muted max-w-md mx-auto font-sans">
+              No immutable blocks match action filter &quot;{filterAction}&quot; or query &quot;{searchQuery}&quot;.
+            </p>
+            <button
+              onClick={() => {
+                setFilterAction('ALL');
+                setSearchQuery('');
+              }}
+              className="px-3 py-1.5 rounded-lg bg-forge-cyan/20 hover:bg-forge-cyan/30 text-forge-cyan border border-forge-cyan/40 text-xs font-bold transition font-mono"
+            >
+              Reset Audit Filters
+            </button>
+          </div>
+        ) : (
+          filteredBlocks.map((b: AuditEvent) => {
+            const timeFormatted = new Date(b.timestamp).toLocaleString('en-IN', {
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false,
+            });
 
           return (
             <div
@@ -372,7 +405,8 @@ export const AuditTrailPage: React.FC = () => {
               )}
             </div>
           );
-        })}
+        })
+      )}
       </div>
     </div>
   );

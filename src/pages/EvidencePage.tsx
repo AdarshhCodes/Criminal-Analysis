@@ -34,16 +34,21 @@ import {
   ChevronRight,
   Download,
   Filter,
+  Inbox,
+  FolderKanban,
 } from 'lucide-react';
 import { useInvestigationStore } from '../stores';
 import { evidenceService, investigationService } from '../services';
 import { Evidence, EvidenceType, VerificationStatus } from '../types';
 import { truncateHash } from '../lib/utils';
+import { SeverityBadge } from '../components/common/SeverityBadge';
 
 export const EvidencePage: React.FC = () => {
   const navigate = useNavigate();
   const {
     currentCase,
+    cases,
+    selectCase,
     selectEvidence,
     openEvidenceModal,
     verifyEvidenceAction,
@@ -56,21 +61,37 @@ export const EvidencePage: React.FC = () => {
   const [globalFilter, setGlobalFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState<EvidenceType | 'ALL'>('ALL');
   const [statusFilter, setStatusFilter] = useState<VerificationStatus | 'ALL'>('ALL');
+  const [priorityFilter, setPriorityFilter] = useState<string>('ALL');
+  const [inboxFilter, setInboxFilter] = useState<'ALL' | 'PENDING' | 'RECENT' | 'VERIFIED' | 'REJECTED'>('ALL');
+  const [caseScope, setCaseScope] = useState<string>('ALL');
   const [exportedToast, setExportedToast] = useState(false);
 
-  // Retrieve raw evidence items from service (scoped to currentCase)
+  // Retrieve raw evidence items from service (scoped to selected caseScope)
   const allEvidence = useMemo(() => {
-    return evidenceService.getEvidence(undefined, currentCase.id);
-  }, [selectedEvidence, currentCase.id]);
+    return evidenceService.getEvidence(undefined, caseScope === 'ALL' ? 'ALL' : caseScope);
+  }, [selectedEvidence, currentCase.id, caseScope]);
 
   // Filtered dataset before table operations
   const filteredData = useMemo(() => {
     return allEvidence.filter((item) => {
       const matchesType = typeFilter === 'ALL' || item.type === typeFilter;
       const matchesStatus = statusFilter === 'ALL' || item.verificationStatus === statusFilter;
-      return matchesType && matchesStatus;
+      
+      const itemPriority = item.priority || (item.confidence >= 90 ? 'CRITICAL' : item.confidence >= 80 ? 'HIGH' : 'MEDIUM');
+      const matchesPriority = priorityFilter === 'ALL' || itemPriority === priorityFilter;
+
+      // Inbox tab filter
+      if (inboxFilter === 'PENDING' && item.verificationStatus !== 'AI_SUGGESTED') return false;
+      if (inboxFilter === 'VERIFIED' && item.verificationStatus !== 'HUMAN_VERIFIED') return false;
+      if (inboxFilter === 'REJECTED' && item.verificationStatus !== 'REJECTED') return false;
+      if (inboxFilter === 'RECENT') {
+        const isRecent = new Date().getTime() - new Date(item.timestamp).getTime() < 14 * 86400000;
+        if (!isRecent) return false;
+      }
+
+      return matchesType && matchesStatus && matchesPriority;
     });
-  }, [allEvidence, typeFilter, statusFilter]);
+  }, [allEvidence, typeFilter, statusFilter, priorityFilter, inboxFilter]);
 
   // TanStack Table Column Definitions
   const columns = useMemo<ColumnDef<Evidence>[]>(
@@ -131,6 +152,37 @@ export const EvidencePage: React.FC = () => {
               <span className="font-semibold">{type}</span>
             </span>
           );
+        },
+      },
+      {
+        id: 'relatedCase',
+        header: 'RELATED CASE',
+        cell: (info) => {
+          const item = info.row.original;
+          const caseId = item.caseId;
+          const matchedCase = cases.find((c) => c.id === caseId || c.code === caseId) || currentCase;
+          return (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                selectCase(matchedCase.id);
+                navigate(`/investigations/${matchedCase.id}`);
+              }}
+              className="px-2 py-0.5 rounded bg-white/[0.04] hover:bg-forge-cyan/20 border border-white/[0.06] hover:border-forge-cyan text-[10px] font-mono text-forge-cyan font-bold transition flex items-center space-x-1"
+            >
+              <FolderKanban className="w-2.5 h-2.5" />
+              <span>{matchedCase.code.split('-')[2] || matchedCase.code}</span>
+            </button>
+          );
+        },
+      },
+      {
+        id: 'priority',
+        header: 'PRIORITY',
+        cell: (info) => {
+          const item = info.row.original;
+          const prio = item.priority || (item.confidence >= 90 ? 'CRITICAL' : item.confidence >= 80 ? 'HIGH' : 'MEDIUM');
+          return <SeverityBadge level={prio} size="xs" />;
         },
       },
       {
@@ -396,26 +448,26 @@ export const EvidencePage: React.FC = () => {
   const aiSuggestedCount = allEvidence.filter((e) => e.verificationStatus === 'AI_SUGGESTED').length;
 
   return (
-    <div className="p-6 max-w-7xl mx-auto w-full space-y-6">
+    <div className="p-6 max-w-7xl mx-auto w-full space-y-6 select-none font-sans">
       {/* Header Banner */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-forge-border pb-4">
         <div>
-          <div className="flex items-center space-x-2 text-forge-cyan font-mono text-xs">
-            <FileSearch className="w-4 h-4" />
-            <span>CRIMINAL FORENSIC REPOSITORY // SECTION 65B VAULT</span>
+          <div className="flex items-center space-x-2 text-forge-cyan font-mono text-xs font-bold">
+            <Inbox className="w-4 h-4" />
+            <span>CENTRAL EVIDENCE INBOX &amp; FORENSIC VAULT</span>
           </div>
           <h1 className="text-2xl font-bold text-white tracking-tight mt-1">
-            Evidence Centre
+            Evidence Inbox
           </h1>
           <p className="text-xs text-forge-text-muted mt-0.5">
-            CCTV surveillance video, telecom CDR triangulation, lawful wiretaps, AML banking slips, and Hawala chits.
+            Central repository for recently added and pending evidence exhibits, forensic custody logs, and cross-case intercepts.
           </p>
         </div>
 
         <div className="flex items-center space-x-3">
           <button
             onClick={handleExportCustodyManifest}
-            className="flex items-center space-x-1.5 px-3 py-1.5 bg-forge-card hover:bg-forge-cardHover border border-forge-border rounded text-xs font-mono text-forge-text-primary transition"
+            className="flex items-center space-x-1.5 px-3 py-1.5 bg-forge-card hover:bg-forge-cardHover border border-forge-border rounded-lg text-xs font-mono text-forge-text-primary transition"
             title="Copy Certified Section 65B Custody Manifest to Clipboard"
           >
             {exportedToast ? (
@@ -431,10 +483,64 @@ export const EvidencePage: React.FC = () => {
             )}
           </button>
 
-          <div className="flex items-center space-x-2 font-mono text-xs text-forge-emerald bg-forge-card px-3 py-1.5 rounded border border-forge-border">
+          <div className="flex items-center space-x-2 font-mono text-xs text-forge-emerald bg-forge-card px-3 py-1.5 rounded-lg border border-forge-border">
             <Lock className="w-3.5 h-3.5" />
             <span>IMMUTABLE LEDGER ACTIVE</span>
           </div>
+        </div>
+      </div>
+
+      {/* Inbox Quick Review Tabs */}
+      <div className="flex flex-wrap items-center justify-between gap-3 p-1.5 rounded-xl glass-card border border-white/[0.08] text-xs font-mono">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-[10px] text-forge-text-muted mr-1">INBOX VIEW:</span>
+          {[
+            { id: 'ALL', label: 'All Exhibits', count: allEvidence.length },
+            { id: 'PENDING', label: 'Pending Review', count: aiSuggestedCount, alert: aiSuggestedCount > 0 },
+            { id: 'RECENT', label: 'Recently Added (14d)', count: undefined },
+            { id: 'VERIFIED', label: 'Human Verified', count: verifiedCount },
+            { id: 'REJECTED', label: 'Rejected / Contested', count: undefined },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setInboxFilter(tab.id as any)}
+              className={`px-3 py-1.5 rounded-lg transition text-xs flex items-center space-x-1.5 ${
+                inboxFilter === tab.id
+                  ? 'bg-forge-cyan text-slate-950 font-bold shadow-sm'
+                  : 'text-forge-text-secondary hover:text-white hover:bg-white/[0.04]'
+              }`}
+            >
+              <span>{tab.label}</span>
+              {tab.count !== undefined && (
+                <span
+                  className={`text-[10px] px-1.5 py-0.2 rounded font-bold ${
+                    tab.alert
+                      ? 'bg-rose-500 text-white animate-pulse'
+                      : 'bg-white/[0.08] text-forge-text-muted'
+                  }`}
+                >
+                  {tab.count}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Case Scope Dropdown */}
+        <div className="flex items-center space-x-2">
+          <span className="text-forge-text-muted text-[11px]">CASE SCOPE:</span>
+          <select
+            value={caseScope}
+            onChange={(e) => setCaseScope(e.target.value)}
+            className="bg-forge-bg border border-white/[0.08] rounded-lg px-2.5 py-1 text-white text-xs font-mono focus:outline-none focus:border-forge-cyan"
+          >
+            <option value="ALL">All Operations (Cross-Case Inbox)</option>
+            {cases.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.code}: {c.name.slice(0, 24)}...
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -484,8 +590,24 @@ export const EvidencePage: React.FC = () => {
             )}
           </div>
 
-          {/* Search and Status Dropdown */}
-          <div className="flex items-center space-x-2.5 w-full lg:w-auto">
+          {/* Search, Priority and Status Dropdowns */}
+          <div className="flex flex-wrap items-center space-x-2.5 w-full lg:w-auto">
+            {/* Priority Selector */}
+            <div className="flex items-center space-x-1.5 font-mono text-xs">
+              <span className="text-forge-text-muted text-[11px]">PRIORITY:</span>
+              <select
+                value={priorityFilter}
+                onChange={(e) => setPriorityFilter(e.target.value)}
+                className="bg-forge-bg border border-forge-border text-white text-xs rounded px-2.5 py-1 focus:outline-none focus:border-forge-cyan"
+              >
+                <option value="ALL">All Priorities</option>
+                <option value="CRITICAL">Critical</option>
+                <option value="HIGH">High</option>
+                <option value="MEDIUM">Medium</option>
+                <option value="LOW">Low</option>
+              </select>
+            </div>
+
             {/* Status Selector */}
             <div className="flex items-center space-x-1.5 font-mono text-xs">
               <Filter className="w-3.5 h-3.5 text-forge-text-muted" />
@@ -502,7 +624,7 @@ export const EvidencePage: React.FC = () => {
             </div>
 
             {/* Global Search Input */}
-            <div className="relative flex-1 lg:w-64">
+            <div className="relative flex-1 lg:w-56">
               <Search className="w-3.5 h-3.5 text-forge-text-muted absolute left-2.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
@@ -513,11 +635,13 @@ export const EvidencePage: React.FC = () => {
               />
             </div>
 
-            {(typeFilter !== 'ALL' || statusFilter !== 'ALL' || globalFilter) && (
+            {(typeFilter !== 'ALL' || statusFilter !== 'ALL' || priorityFilter !== 'ALL' || inboxFilter !== 'ALL' || globalFilter) && (
               <button
                 onClick={() => {
                   setTypeFilter('ALL');
                   setStatusFilter('ALL');
+                  setPriorityFilter('ALL');
+                  setInboxFilter('ALL');
                   setGlobalFilter('');
                 }}
                 className="p-1.5 rounded text-forge-text-muted hover:text-white hover:bg-forge-bg transition"
@@ -581,6 +705,8 @@ export const EvidencePage: React.FC = () => {
                         onClick={() => {
                           setTypeFilter('ALL');
                           setStatusFilter('ALL');
+                          setPriorityFilter('ALL');
+                          setInboxFilter('ALL');
                           setGlobalFilter('');
                         }}
                         className="mt-2 px-3 py-1 bg-forge-bg hover:bg-forge-panel border border-forge-border rounded text-xs text-forge-cyan font-mono"

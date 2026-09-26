@@ -18,7 +18,7 @@ export const AppShell: React.FC = () => {
         <Sidebar />
 
         {/* Central Dynamic Viewport */}
-        <main className="flex-1 overflow-y-auto bg-forge-bg tactical-grid flex flex-col relative focus:outline-none">
+        <main className="flex-1 overflow-y-auto bg-forge-bg tactical-grid flex flex-col relative focus:outline-none min-h-0 h-full">
           <Outlet />
         </main>
 

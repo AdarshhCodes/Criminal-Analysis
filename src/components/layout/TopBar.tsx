@@ -11,14 +11,24 @@ import {
   Database,
   Sun,
   Moon,
+  Menu,
+  PanelRight,
 } from 'lucide-react';
 import { useInvestigationStore, useThemeStore } from '../../stores';
 
 export const TopBar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { currentCase, cases, selectCase, currentInvestigator, runAiQuery } =
-    useInvestigationStore();
+  const {
+    currentCase,
+    cases,
+    selectCase,
+    currentInvestigator,
+    runAiQuery,
+    isRightPanelOpen,
+    toggleRightPanel,
+    toggleMobileSidebar,
+  } = useInvestigationStore();
   const { theme, toggleTheme } = useThemeStore();
   const [isCaseMenuOpen, setIsCaseMenuOpen] = useState(false);
   const [searchInput, setSearchInput] = useState('');
@@ -74,7 +84,15 @@ export const TopBar: React.FC = () => {
       {/* Main Command Bar */}
       <div className="px-5 py-2.5 flex items-center justify-between gap-4">
         {/* Brand & Tagline */}
-        <div className="flex items-center space-x-3 shrink-0">
+        <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
+          <button
+            onClick={() => toggleMobileSidebar()}
+            className="p-1.5 rounded bg-forge-card hover:bg-forge-cardHover border border-forge-border text-forge-text-secondary hover:text-white transition lg:hidden"
+            title="Toggle Navigation Menu"
+            aria-label="Toggle Navigation Menu"
+          >
+            <Menu className="w-4 h-4 text-forge-cyan" />
+          </button>
           <div className="p-2 rounded bg-forge-cyan/10 border border-forge-cyan/30 text-forge-cyan shadow-cyan-glow">
             <Shield className="w-5 h-5" />
           </div>
@@ -275,6 +293,21 @@ export const TopBar: React.FC = () => {
             ) : (
               <Moon className="w-4 h-4 text-forge-cyan group-hover:-rotate-12 transition-transform duration-300" />
             )}
+          </button>
+
+          {/* Dedicated Context Panel (Intelligence Dossier) Toggle */}
+          <button
+            onClick={() => toggleRightPanel()}
+            id="context-panel-toggle-button"
+            className={`p-2 rounded border transition flex items-center justify-center ${
+              isRightPanelOpen
+                ? 'bg-forge-cyan/20 border-forge-cyan/50 text-forge-cyan shadow-sm'
+                : 'bg-forge-card border-forge-border text-forge-text-secondary hover:text-white hover:bg-forge-cardHover'
+            }`}
+            title={isRightPanelOpen ? 'Close Intelligence Dossier Panel' : 'Open Intelligence Dossier Panel'}
+            aria-label={isRightPanelOpen ? 'Close Intelligence Dossier Panel' : 'Open Intelligence Dossier Panel'}
+          >
+            <PanelRight className="w-4 h-4" />
           </button>
 
           {/* Officer Profile Badge */}

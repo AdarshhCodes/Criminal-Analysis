@@ -6,4 +6,8 @@ export * from './EntityHoverCard';
 export * from './IntelligencePathHUD';
 export * from './GraphMapView';
 export * from './GraphTableView';
+export * from './CrossCaseConnectionGraph';
+export * from './SingleCaseDetailGraph';
+export * from './InvestigationTimelineSection';
+
 

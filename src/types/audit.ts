@@ -8,6 +8,13 @@ export interface AuditEvent {
   actorName: string;
   actorRole: string;
   action:
+    | 'CASE_CREATED'
+    | 'CASE_UPDATED'
+    | 'EVIDENCE_ADDED'
+    | 'PERSON_LINKED'
+    | 'REPORT_GENERATED'
+    | 'SEARCH_PERFORMED'
+    | 'STATUS_CHANGED'
     | 'RELATIONSHIP_VERIFIED'
     | 'RELATIONSHIP_REJECTED'
     | 'AI_QUERY_EXECUTED'
@@ -16,9 +23,8 @@ export interface AuditEvent {
     | 'EVIDENCE_FLAGGED'
     | 'EVIDENCE_REJECTED'
     | 'CASE_INITIATED'
-    | 'REPORT_GENERATED'
     | 'ALERT_ACKNOWLEDGED';
-  targetType: 'CASE' | 'RELATIONSHIP' | 'ENTITY' | 'EVIDENCE' | 'QUERY' | 'REPORT' | 'ALERT';
+  targetType: 'CASE' | 'RELATIONSHIP' | 'ENTITY' | 'EVIDENCE' | 'QUERY' | 'REPORT' | 'ALERT' | 'SEARCH' | 'SYSTEM';
   targetId: string;
   timestamp: string;
   details: string;

@@ -22,6 +22,8 @@ export const IntelligencePathHUD: React.FC = () => {
     traceIntelligencePath,
     verifyRelationshipAction,
     currentCase,
+    lastTracedPath,
+    restoreLastTracedPath,
   } = useInvestigationStore();
 
   const [isSelectorOpen, setIsSelectorOpen] = useState(false);
@@ -260,6 +262,32 @@ export const IntelligencePathHUD: React.FC = () => {
               <span>Trace Strongest Connection</span>
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Reopen & Restore Pathway HUD Trigger */}
+      {!intelligencePathData && !isSelectorOpen && (
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <button
+            onClick={() => setIsSelectorOpen(true)}
+            className="px-3.5 py-1.5 rounded-full bg-forge-panel/90 backdrop-blur border border-forge-cyan/40 hover:border-forge-cyan text-forge-cyan text-xs font-mono font-bold flex items-center space-x-2 transition shadow-xl hover:bg-forge-card"
+            title="Open Multi-Hop Pathway Discovery Tool"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-forge-cyan" />
+            <span>Trace Multi-Hop Intelligence Path</span>
+            <ChevronDown className="w-3 h-3" />
+          </button>
+
+          {lastTracedPath && (
+            <button
+              onClick={() => restoreLastTracedPath()}
+              className="px-3.5 py-1.5 rounded-full bg-forge-panel/90 backdrop-blur border border-amber-500/40 hover:border-amber-400 text-amber-300 text-xs font-mono font-bold flex items-center space-x-1.5 transition shadow-xl hover:bg-forge-card"
+              title="Restore last traced pathway"
+            >
+              <Zap className="w-3.5 h-3.5 text-amber-400" />
+              <span>Restore Last Pathway ({lastTracedPath.hopCount} Hops)</span>
+            </button>
+          )}
         </div>
       )}
     </div>

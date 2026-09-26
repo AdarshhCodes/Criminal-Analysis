@@ -27,6 +27,7 @@ export interface Evidence {
   timestamp: string;
   entityIds: string[];
   confidence: number;
+  priority?: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
   verificationStatus: VerificationStatus;
   hash: string; // SHA-256
   description: string;

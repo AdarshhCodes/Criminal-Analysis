@@ -6,3 +6,4 @@ export * from './timelineService';
 export * from './intelligenceService';
 export * from './auditService';
 export * from './reportService';
+export * from './aiAssistantService';

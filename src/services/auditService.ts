@@ -81,6 +81,71 @@ class AuditService {
   }
 
   /**
+   * Universal activity logger defaulting to current investigator session
+   */
+  public async logActivity(params: {
+    action: AuditEvent['action'];
+    targetType: AuditEvent['targetType'];
+    targetId: string;
+    details: string;
+    payload?: Record<string, unknown>;
+    actorName?: string;
+  }): Promise<AuditEvent> {
+    return this.mintBlock({
+      actorId: 'OFFICER-VR-88219',
+      actorName: params.actorName || 'Insp. Vikramaditya Rathore',
+      actorRole: 'Senior Intelligence Investigator',
+      action: params.action,
+      targetType: params.targetType,
+      targetId: params.targetId,
+      details: params.details,
+      payload: params.payload || {},
+    });
+  }
+
+  public async logSearch(query: string, resultCount: number): Promise<AuditEvent> {
+    return this.logActivity({
+      action: 'SEARCH_PERFORMED',
+      targetType: 'SEARCH',
+      targetId: `SRCH-${Date.now().toString().slice(-6)}`,
+      details: `Omni-Search executed for "${query}" returning ${resultCount} verified results.`,
+      payload: { query, resultCount },
+    });
+  }
+
+  public async logReportGeneration(caseCode: string, reportTitle: string): Promise<AuditEvent> {
+    return this.logActivity({
+      action: 'REPORT_GENERATED',
+      targetType: 'REPORT',
+      targetId: `REP-${Date.now().toString().slice(-6)}`,
+      details: `Court-Ready Dossier generated: "${reportTitle}" for Case ${caseCode}.`,
+      payload: { caseCode, reportTitle },
+    });
+  }
+
+  public async logStatusChange(entityName: string, entityId: string, oldStatus: string, newStatus: string): Promise<AuditEvent> {
+    return this.logActivity({
+      action: 'STATUS_CHANGED',
+      targetType: 'ENTITY',
+      targetId: entityId,
+      details: `Status for ${entityName} (${entityId}) changed from ${oldStatus} to ${newStatus}.`,
+      payload: { entityId, entityName, oldStatus, newStatus },
+    });
+  }
+
+  /**
+   * Synchronous verification of the previousHash link integrity
+   */
+  public isChainValidSync(): boolean {
+    for (let i = 1; i < this.blocks.length; i++) {
+      if (this.blocks[i].previousHash !== this.blocks[i - 1].blockHash) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
    * Verify the mathematical integrity of the complete hash chain
    */
   public async verifyChainIntegrity(): Promise<{
@@ -112,3 +177,4 @@ class AuditService {
 }
 
 export const auditService = new AuditService();
+

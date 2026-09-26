@@ -92,7 +92,13 @@ export interface InvestigationState {
   // Node expansion state
   expandedNodeIds: string[];
 
+  // Mobile navigation state
+  isMobileSidebarOpen: boolean;
+  lastTracedPath: IntelligencePathData | null;
+
   // Actions
+  toggleMobileSidebar: (open?: boolean) => void;
+  restoreLastTracedPath: () => void;
   selectCase: (caseId: string) => void;
   selectEntity: (entity: Entity | null) => void;
   selectEvidence: (evidence: Evidence | null) => void;
@@ -171,9 +177,31 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
   isRightPanelOpen: true,
   activeContextTab: 'ENTITY',
 
+  isMobileSidebarOpen: false,
+  lastTracedPath: null,
+
   isEvidenceModalOpen: false,
   viewingEvidence: null,
   expandedNodeIds: [],
+
+  toggleMobileSidebar: (open) =>
+    set((state) => ({
+      isMobileSidebarOpen: open !== undefined ? open : !state.isMobileSidebarOpen,
+    })),
+
+  restoreLastTracedPath: () => {
+    const last = get().lastTracedPath;
+    if (last) {
+      set({
+        intelligencePathData: last,
+        highlightedPath: {
+          nodeIds: last.nodeIds,
+          edgeIds: last.edgeIds,
+        },
+        graphVersion: get().graphVersion + 1,
+      });
+    }
+  },
 
   selectCase: (caseId) => {
     const c = investigationService.getCaseById(caseId);
@@ -253,7 +281,14 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
   setGraphFilters: (filters) =>
     set((state) => ({ graphFilters: { ...state.graphFilters, ...filters } })),
 
-  clearGraphHighlights: () => set({ highlightedPath: null, intelligencePathData: null }),
+  clearGraphHighlights: () => {
+    const current = get().intelligencePathData;
+    set((state) => ({
+      highlightedPath: null,
+      intelligencePathData: null,
+      lastTracedPath: current || state.lastTracedPath,
+    }));
+  },
 
   setTimelineFilter: (filter) => set({ timelineFilter: filter }),
 
@@ -367,6 +402,7 @@ export const useInvestigationStore = create<InvestigationState>((set, get) => ({
 
     set({
       intelligencePathData: result,
+      lastTracedPath: result,
       highlightedPath: {
         nodeIds: result.nodeIds,
         edgeIds: result.edgeIds,
