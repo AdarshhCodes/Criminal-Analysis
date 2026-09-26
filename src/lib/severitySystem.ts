@@ -243,6 +243,78 @@ export const CASE_FLAG_CONFIG: Record<CaseFlag, ColorTokenConfig> = {
     borderClass: 'border-purple-500/30',
     textColor: 'text-purple-300',
   },
+  INTERSTATE: {
+    label: 'Inter-State Jurisdiction',
+    badgeClasses: 'bg-sky-500/15 text-sky-300 border border-sky-500/30',
+    dotColor: 'bg-sky-400',
+    hex: '#38bdf8',
+    chartHex: '#38bdf8',
+    subtleBg: 'bg-sky-950/20',
+    borderClass: 'border-sky-500/30',
+    textColor: 'text-sky-300',
+  },
+};
+
+// ---------------------------------------------------------------------------
+// 5. Person Classifications (Victim, Suspect, Witness, Accused)
+// ---------------------------------------------------------------------------
+export type PersonClassification = 'VICTIM' | 'SUSPECT' | 'WITNESS' | 'ACCUSED';
+
+export const PERSON_CLASSIFICATION_CONFIG: Record<PersonClassification, ColorTokenConfig> = {
+  VICTIM: {
+    label: 'Victim',
+    badgeClasses: 'bg-teal-500/15 text-teal-300 border border-teal-500/30',
+    dotColor: 'bg-teal-400',
+    hex: '#14b8a6',
+    chartHex: '#14b8a6',
+    subtleBg: 'bg-teal-950/20',
+    borderClass: 'border-teal-500/30',
+    textColor: 'text-teal-300',
+  },
+  SUSPECT: {
+    label: 'Suspect',
+    badgeClasses: 'bg-rose-500/15 text-rose-300 border border-rose-500/30',
+    dotColor: 'bg-rose-400',
+    hex: '#f43f5e',
+    chartHex: '#f43f5e',
+    subtleBg: 'bg-rose-950/20',
+    borderClass: 'border-rose-500/30',
+    textColor: 'text-rose-300',
+  },
+  WITNESS: {
+    label: 'Witness',
+    badgeClasses: 'bg-sky-500/15 text-sky-300 border border-sky-500/30',
+    dotColor: 'bg-sky-400',
+    hex: '#38bdf8',
+    chartHex: '#38bdf8',
+    subtleBg: 'bg-sky-950/20',
+    borderClass: 'border-sky-500/30',
+    textColor: 'text-sky-300',
+  },
+  ACCUSED: {
+    label: 'Accused',
+    badgeClasses: 'bg-amber-500/15 text-amber-300 border border-amber-500/30',
+    dotColor: 'bg-amber-400',
+    hex: '#f59e0b',
+    chartHex: '#f59e0b',
+    subtleBg: 'bg-amber-950/20',
+    borderClass: 'border-amber-500/30',
+    textColor: 'text-amber-300',
+  },
+};
+
+// ---------------------------------------------------------------------------
+// 6. Highlight & General Status (Important, Active, Under Review, Closed)
+// ---------------------------------------------------------------------------
+export const IMPORTANT_CONFIG: ColorTokenConfig = {
+  label: 'Important',
+  badgeClasses: 'bg-violet-500/15 text-violet-300 border border-violet-500/30 font-semibold',
+  dotColor: 'bg-violet-400',
+  hex: '#8b5cf6',
+  chartHex: '#8b5cf6',
+  subtleBg: 'bg-violet-950/20',
+  borderClass: 'border-violet-500/30',
+  textColor: 'text-violet-300',
 };
 
 // ---------------------------------------------------------------------------
@@ -258,6 +330,12 @@ export function getCaseStatusConfig(status?: string | CaseStatus): ColorTokenCon
   if (!status) return CASE_STATUS_CONFIG.ACTIVE;
   const upper = status.toUpperCase() as CaseStatus;
   return CASE_STATUS_CONFIG[upper] || CASE_STATUS_CONFIG.ACTIVE;
+}
+
+export function getPersonClassificationConfig(classification?: string | PersonClassification): ColorTokenConfig {
+  if (!classification) return PERSON_CLASSIFICATION_CONFIG.SUSPECT;
+  const upper = classification.toUpperCase() as PersonClassification;
+  return PERSON_CLASSIFICATION_CONFIG[upper] || PERSON_CLASSIFICATION_CONFIG.SUSPECT;
 }
 
 export function getCaseFlagConfig(flag: CaseFlag | string): ColorTokenConfig {
@@ -299,3 +377,4 @@ export function getRoleCategoryConfig(role?: string): ColorTokenConfig {
   const category = classifyRoleCategory(role);
   return ROLE_CATEGORY_CONFIG[category];
 }
+

@@ -350,6 +350,54 @@ class InvestigationService {
     rel.rejectionReason = reason;
     return { ...rel };
   }
+  public getWomenRelatedCases(): Case[] {
+    return this.cases.filter(
+      (c) =>
+        c.caseFlags?.includes('WOMEN_RELATED') ||
+        c.category?.toLowerCase().includes('women') ||
+        c.name.toLowerCase().includes('harassment')
+    );
+  }
+
+  public getCriticalCases(): Case[] {
+    return this.cases.filter(
+      (c) =>
+        c.priority === 'CRITICAL' ||
+        c.caseFlags?.includes('CRITICAL')
+    );
+  }
+
+  public getCasesByState(state?: string): Case[] {
+    if (!state || state === 'ALL' || state === 'All India') return this.getCases();
+    return this.cases.filter(
+      (c) => c.state?.toLowerCase() === state.toLowerCase() || c.location?.toLowerCase().includes(state.toLowerCase())
+    );
+  }
+
+  public getStatesSummary(): {
+    state: string;
+    caseCount: number;
+    activeCases: number;
+    criticalCases: number;
+    cases: Case[];
+  }[] {
+    const map = new Map<string, { state: string; caseCount: number; activeCases: number; criticalCases: number; cases: Case[] }>();
+
+    this.cases.forEach((c) => {
+      const st = c.state || 'Other';
+      if (!map.has(st)) {
+        map.set(st, { state: st, caseCount: 0, activeCases: 0, criticalCases: 0, cases: [] });
+      }
+      const entry = map.get(st)!;
+      entry.caseCount += 1;
+      if (c.status === 'ACTIVE') entry.activeCases += 1;
+      if (c.priority === 'CRITICAL') entry.criticalCases += 1;
+      entry.cases.push(c);
+    });
+
+    return Array.from(map.values()).sort((a, b) => b.caseCount - a.caseCount);
+  }
 }
 
 export const investigationService = new InvestigationService();
+

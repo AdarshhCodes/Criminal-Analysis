@@ -13,10 +13,16 @@ export const OPERATION_RAKSHAK_CASE: Case = {
   caseFlags: ['WOMEN_RELATED', 'CRITICAL', 'CYBER'],
   leadInvestigator: 'ACP Sunita Deshmukh',
   assignedUnit: 'Special Crime Unit for Women & Children (SPS-NCR)',
+  assignedTeam: 'Special Protection Squad 02 (Women & Children)',
+  location: 'Rohini & North Campus, Delhi NCR',
+  state: 'Delhi',
+  city: 'New Delhi',
   description:
     'Cross-platform cyber stalking, synthetic deepfake blackmail, and organized syndicate targeting female college students and young professionals across Delhi NCR with coercive threats.',
   createdAt: '2026-08-28T10:00:00Z',
   updatedAt: '2026-09-11T12:30:00Z',
+  startDate: '2026-08-28',
+  lastActivity: '2026-09-11 11:45 IST',
   entityIds: [
     'IF-P-060',
     'IF-P-061',
@@ -28,8 +34,21 @@ export const OPERATION_RAKSHAK_CASE: Case = {
     'IF-LOC-010',
     'IF-VEH-010',
   ],
+  importantPeople: [
+    { id: 'IF-P-060', name: 'Vikramaditya "Vicky" Rawat', role: 'Syndicate Extortion Admin', classification: 'ACCUSED', riskScore: 96 },
+    { id: 'IF-P-061', name: 'Megha Soni', role: 'Social Engineering Specialist', classification: 'ACCUSED', riskScore: 82 },
+    { id: 'IF-P-062', name: 'Kavita Nair', role: 'Protected Complainant (Key Witness)', classification: 'VICTIM', riskScore: 12 },
+    { id: 'IF-P-063', name: 'Sameer Merchant', role: 'Mule Aggregator (Cross-Case Link)', classification: 'ACCUSED', riskScore: 78 },
+  ],
   evidenceCount: 5,
   alertCount: 3,
+  financialActivity: {
+    totalVolume: '₹14.2 Lakh',
+    transactionCount: 38,
+    suspiciousAccounts: 4,
+    muleCount: 14,
+    hawalaCorridor: 'Rohini ⇄ Karol Bagh (SBI IF-ACC-002)',
+  },
   metrics: {
     totalEntities: 9,
     highRiskEntities: 3,
@@ -48,13 +67,19 @@ export const OPERATION_CHIMERA_CASE: Case = {
   status: 'UNDER_REVIEW',
   priority: 'HIGH',
   category: 'FinTech & Identity Fraud',
-  caseFlags: ['FINANCIAL', 'CYBER'],
+  caseFlags: ['FINANCIAL', 'CYBER', 'INTERSTATE'],
   leadInvestigator: 'Sr. Analyst Neha Kashyap',
   assignedUnit: 'Economic Offences Wing, FinTech Cell',
+  assignedTeam: 'FinTech Fraud Investigation Squad',
+  location: 'Sector 62 Noida & Ghaziabad, Uttar Pradesh',
+  state: 'Uttar Pradesh',
+  city: 'Noida',
   description:
     'Investigation into 1,200+ illegal micro-loan applications deploying synthetic identity manipulation, scraped phonebooks, and forged e-KYC credentials.',
   createdAt: '2026-05-19T11:15:00Z',
   updatedAt: '2026-09-08T16:20:00Z',
+  startDate: '2026-05-19',
+  lastActivity: '2026-09-08 16:20 IST',
   entityIds: [
     'IF-P-070',
     'IF-P-071',
@@ -64,8 +89,20 @@ export const OPERATION_CHIMERA_CASE: Case = {
     'IF-ORG-010',
     'IF-LOC-020',
   ],
+  importantPeople: [
+    { id: 'IF-P-070', name: 'Devendra "Dev" Singhal', role: 'FinTech Backend Architect', classification: 'ACCUSED', riskScore: 89 },
+    { id: 'IF-P-071', name: 'Ananya Roy', role: 'Synthetic e-KYC Forger', classification: 'ACCUSED', riskScore: 76 },
+    { id: 'IF-P-072', name: 'Rohan Deshmukh', role: 'Complainant & Defrauded Borrower', classification: 'VICTIM', riskScore: 8 },
+  ],
   evidenceCount: 4,
   alertCount: 2,
+  financialActivity: {
+    totalVolume: '₹18.4 Crore',
+    transactionCount: 340,
+    suspiciousAccounts: 18,
+    muleCount: 42,
+    hawalaCorridor: 'Noida ⇄ Mumbai Gateway',
+  },
   metrics: {
     totalEntities: 7,
     highRiskEntities: 2,
@@ -84,13 +121,19 @@ export const OPERATION_DARKVESSEL_CASE: Case = {
   status: 'CLOSED',
   priority: 'CRITICAL',
   category: 'Narcotics & Coastal Smuggling',
-  caseFlags: ['NARCOTICS', 'CRITICAL', 'ORGANIZED_CRIME'],
+  caseFlags: ['NARCOTICS', 'CRITICAL', 'ORGANIZED_CRIME', 'INTERSTATE'],
   leadInvestigator: 'ACP R. S. Jamwal',
   assignedUnit: 'Narcotics Control & Coastal Security',
+  assignedTeam: 'Joint Maritime Interdiction Cell',
+  location: 'JNPT Port & Arabian Sea Corridor, Maharashtra',
+  state: 'Maharashtra',
+  city: 'Mumbai',
   description:
     'Multi-agency naval interdiction tracking container contraband, satellite phone logs, and off-grid courier rendezvous in the Arabian Sea corridor.',
   createdAt: '2026-03-10T08:00:00Z',
   updatedAt: '2026-08-01T14:30:00Z',
+  startDate: '2026-03-10',
+  lastActivity: '2026-08-01 14:30 IST',
   entityIds: [
     'IF-P-080',
     'IF-P-081',
@@ -98,8 +141,19 @@ export const OPERATION_DARKVESSEL_CASE: Case = {
     'IF-LOC-030',
     'IF-PH-030',
   ],
+  importantPeople: [
+    { id: 'IF-P-080', name: 'Farooq "Captain" Choksi', role: 'Vessel Charter Operator', classification: 'ACCUSED', riskScore: 94 },
+    { id: 'IF-P-081', name: 'Kishore Jha', role: 'JNPT Customs Freight Handler', classification: 'ACCUSED', riskScore: 84 },
+  ],
   evidenceCount: 3,
   alertCount: 1,
+  financialActivity: {
+    totalVolume: '₹112.0 Crore',
+    transactionCount: 22,
+    suspiciousAccounts: 6,
+    muleCount: 8,
+    hawalaCorridor: 'Dubai ⇄ JNPT Mumbai',
+  },
   metrics: {
     totalEntities: 5,
     highRiskEntities: 2,
@@ -107,6 +161,110 @@ export const OPERATION_DARKVESSEL_CASE: Case = {
     pendingReviewConnections: 0,
   },
 };
+
+// ============================================================================
+// 4. OPERATION TRISHUL (Inter-State Cyber Harassment & Call Center Fraud)
+// ============================================================================
+export const OPERATION_TRISHUL_CASE: Case = {
+  id: 'IF-CASE-2026-0923',
+  code: 'IF-2026-0923',
+  name: 'Operation Trishul: Southern Cyber Extortion Syndicate',
+  status: 'ACTIVE',
+  priority: 'CRITICAL',
+  category: 'Women-Related Cyber Crime',
+  caseFlags: ['WOMEN_RELATED', 'CRITICAL', 'CYBER', 'INTERSTATE'],
+  leadInvestigator: 'DCP Aruna Reddy',
+  assignedUnit: 'Cyber Crime Investigation Centre, Bengaluru',
+  assignedTeam: 'Special Anti-Harassment Taskforce',
+  location: 'Whitefield & Electronic City, Karnataka',
+  state: 'Karnataka',
+  city: 'Bengaluru',
+  description:
+    'Raid on illegal boiler-room call center targeting young women professionals with fake court notices, video morphing blackmail, and high-velocity UPI sweeps across Karnataka and Telangana.',
+  createdAt: '2026-09-01T09:00:00Z',
+  updatedAt: '2026-09-11T14:15:00Z',
+  startDate: '2026-09-01',
+  lastActivity: '2026-09-11 14:15 IST',
+  entityIds: [
+    'IF-P-090',
+    'IF-P-091',
+    'IF-P-092',
+    'IF-PH-040',
+    'IF-ACC-040',
+    'IF-LOC-040',
+  ],
+  importantPeople: [
+    { id: 'IF-P-090', name: 'Tanmay "Titan" Hegde', role: 'Illegal Call Center Director', classification: 'ACCUSED', riskScore: 93 },
+    { id: 'IF-P-091', name: 'Sneha Kulkarni', role: 'VoIP Caller & Impersonator', classification: 'ACCUSED', riskScore: 81 },
+    { id: 'IF-P-092', name: 'Dr. Radhika Menon', role: 'Complainant (Medical Professional)', classification: 'VICTIM', riskScore: 10 },
+  ],
+  evidenceCount: 4,
+  alertCount: 3,
+  financialActivity: {
+    totalVolume: '₹28.5 Lakh',
+    transactionCount: 64,
+    suspiciousAccounts: 7,
+    muleCount: 19,
+    hawalaCorridor: 'Bengaluru ⇄ Hyderabad Corridor',
+  },
+  metrics: {
+    totalEntities: 6,
+    highRiskEntities: 2,
+    verifiedConnections: 7,
+    pendingReviewConnections: 1,
+  },
+};
+
+// ============================================================================
+// 5. OPERATION JALTARANG (Eastern Corridor Hawala & Smuggling)
+// ============================================================================
+export const OPERATION_JALTARANG_CASE: Case = {
+  id: 'IF-CASE-2026-0612',
+  code: 'IF-2026-0612',
+  name: 'Operation JalTarang: Eastern Border Financial Conduit',
+  status: 'ACTIVE',
+  priority: 'HIGH',
+  category: 'Financial Crime & Hawala Syndicate',
+  caseFlags: ['FINANCIAL', 'ORGANIZED_CRIME', 'INTERSTATE'],
+  leadInvestigator: 'ACP S. K. Banerjee',
+  assignedUnit: 'Anti-Smuggling & Cross-Border Taskforce, Kolkata',
+  assignedTeam: 'Eastern Intelligence Taskforce Unit 2',
+  location: 'Burrabazar & Siliguri Transit Corridor, West Bengal',
+  state: 'West Bengal',
+  city: 'Kolkata',
+  description:
+    'Syndicate operating cross-border bullion diversion, currency exchange rackets, and fake commercial invoicing connecting Kolkata bullion markets to northeast transit hubs.',
+  createdAt: '2026-06-12T10:00:00Z',
+  updatedAt: '2026-09-09T18:40:00Z',
+  startDate: '2026-06-12',
+  lastActivity: '2026-09-09 18:40 IST',
+  entityIds: [
+    'IF-P-095',
+    'IF-P-096',
+    'IF-ACC-050',
+    'IF-LOC-050',
+  ],
+  importantPeople: [
+    { id: 'IF-P-095', name: 'Bimal "Sethji" Poddar', role: 'Bullion Hawala Desk Operator', classification: 'ACCUSED', riskScore: 90 },
+    { id: 'IF-P-096', name: 'Debashish Sen', role: 'Border Transit Courier', classification: 'SUSPECT', riskScore: 74 },
+  ],
+  evidenceCount: 3,
+  alertCount: 2,
+  financialActivity: {
+    totalVolume: '₹22.8 Crore',
+    transactionCount: 78,
+    suspiciousAccounts: 9,
+    muleCount: 15,
+    hawalaCorridor: 'Kolkata Burrabazar ⇄ Delhi Karol Bagh',
+  },
+  metrics: {
+    totalEntities: 4,
+    highRiskEntities: 2,
+    verifiedConnections: 4,
+    pendingReviewConnections: 1,
+  },
+};
+
 
 // ============================================================================
 // ENTITIES FOR ADDITIONAL CASES

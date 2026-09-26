@@ -4,6 +4,7 @@ import {
   getCaseStatusConfig,
   getCaseFlagConfig,
   getRoleCategoryConfig,
+  getPersonClassificationConfig,
 } from '../../lib/severitySystem';
 import { AlertSeverity, CasePriority, CaseStatus, CaseFlag } from '../../types';
 import { ShieldAlert, AlertCircle, HeartHandshake } from 'lucide-react';
@@ -117,3 +118,53 @@ export const EntityRoleBadge: React.FC<EntityRoleBadgeProps> = ({
     </span>
   );
 };
+
+interface PersonClassificationBadgeProps {
+  classification?: 'VICTIM' | 'SUSPECT' | 'WITNESS' | 'ACCUSED' | string;
+  showDot?: boolean;
+  className?: string;
+  size?: 'xs' | 'sm';
+}
+
+export const PersonClassificationBadge: React.FC<PersonClassificationBadgeProps> = ({
+  classification,
+  showDot = true,
+  className = '',
+  size = 'xs',
+}) => {
+  if (!classification) return null;
+  const config = getPersonClassificationConfig(classification);
+  const sizeClasses = size === 'xs' ? 'text-[10px] px-2 py-0.5' : 'text-xs px-2.5 py-1';
+
+  return (
+    <span
+      className={`inline-flex items-center space-x-1.5 rounded font-mono font-bold uppercase tracking-wider ${config.badgeClasses} ${sizeClasses} ${className}`}
+    >
+      {showDot && <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${config.dotColor}`} />}
+      <span>{config.label}</span>
+    </span>
+  );
+};
+
+interface ImportantBadgeProps {
+  label?: string;
+  className?: string;
+  size?: 'xs' | 'sm';
+}
+
+export const ImportantBadge: React.FC<ImportantBadgeProps> = ({
+  label = 'Important',
+  className = '',
+  size = 'xs',
+}) => {
+  const sizeClasses = size === 'xs' ? 'text-[10px] px-2 py-0.5' : 'text-xs px-2.5 py-1';
+  return (
+    <span
+      className={`inline-flex items-center space-x-1.5 rounded font-mono font-bold uppercase tracking-wider bg-violet-500/15 text-violet-300 border border-violet-500/30 ${sizeClasses} ${className}`}
+    >
+      <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-violet-400" />
+      <span>{label}</span>
+    </span>
+  );
+};
+

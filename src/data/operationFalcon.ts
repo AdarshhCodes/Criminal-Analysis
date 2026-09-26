@@ -7,13 +7,19 @@ export const OPERATION_FALCON_CASE: Case = {
   status: 'ACTIVE',
   priority: 'CRITICAL',
   category: 'Financial Crime & Hawala Syndicate',
-  caseFlags: ['CRITICAL', 'FINANCIAL', 'ORGANIZED_CRIME'],
+  caseFlags: ['CRITICAL', 'FINANCIAL', 'ORGANIZED_CRIME', 'INTERSTATE'],
   leadInvestigator: 'Insp. Vikramaditya Rathore',
   assignedUnit: 'Special Operations & Cyber Crime Division, Unit 4',
+  assignedTeam: 'Taskforce Unit 4 (Cyber-Financial)',
+  location: 'Delhi NCR & Western Commercial Corridor',
+  state: 'Delhi',
+  city: 'New Delhi',
   description:
     'Coordinated investigation into an organized syndicate operating counterfeit SIM networks, cross-border Hawala money laundering, shell export firms, and logistics hubs spanning Delhi NCR and international jurisdictions.',
   createdAt: '2026-08-14T09:30:00Z',
   updatedAt: '2026-09-11T05:45:00Z',
+  startDate: '2026-08-14',
+  lastActivity: '2026-09-11 18:22 IST',
   entityIds: [
     'IF-P-001', 'IF-P-007', 'IF-P-012', 'IF-P-018', 'IF-P-022', 'IF-P-029', 'IF-P-033', 'IF-P-041', 'IF-P-048', 'IF-P-054',
     'IF-PH-001', 'IF-PH-002', 'IF-PH-003', 'IF-PH-004', 'IF-PH-005', 'IF-PH-006', 'IF-PH-007',
@@ -23,8 +29,22 @@ export const OPERATION_FALCON_CASE: Case = {
     'IF-ORG-001', 'IF-ORG-002', 'IF-ORG-003',
     'IF-P-063', // Cross-case: Sameer Merchant (mule aggregator also active in Rakshak network)
   ],
+  importantPeople: [
+    { id: 'IF-P-001', name: 'Rajesh Kumar', role: 'Syndicate Kingpin', classification: 'ACCUSED', riskScore: 98 },
+    { id: 'IF-P-007', name: 'Amit Sharma', role: 'Logistics Coordinator', classification: 'ACCUSED', riskScore: 88 },
+    { id: 'IF-P-012', name: 'Suresh Verma', role: 'Hawala Broker', classification: 'ACCUSED', riskScore: 91 },
+    { id: 'IF-P-018', name: 'Pooja Verma', role: 'Burner SIM Reseller', classification: 'SUSPECT', riskScore: 78 },
+    { id: 'IF-P-054', name: 'Deepak Nair', role: 'Customs Informant', classification: 'WITNESS', riskScore: 18 },
+  ],
   evidenceCount: 16,
   alertCount: 9,
+  financialActivity: {
+    totalVolume: '₹48.6 Crore',
+    transactionCount: 184,
+    suspiciousAccounts: 12,
+    muleCount: 26,
+    hawalaCorridor: 'Karol Bagh ⇄ Deira Dubai',
+  },
   metrics: {
     totalEntities: 34,
     highRiskEntities: 7,
@@ -35,48 +55,6 @@ export const OPERATION_FALCON_CASE: Case = {
 
 export const DEMO_CASES: Case[] = [
   OPERATION_FALCON_CASE,
-  {
-    id: 'IF-CASE-2026-0519',
-    code: 'IF-2026-0519',
-    name: 'Operation Chimera: Synthetic Identity Loan Fraud',
-    status: 'UNDER_REVIEW',
-    priority: 'HIGH',
-    leadInvestigator: 'Sr. Analyst Neha Kashyap',
-    assignedUnit: 'Economic Offences Wing, FinTech Cell',
-    description: 'Investigation into 1,200+ micro-loan apps deploying synthetic identity manipulation and forged e-KYC documents.',
-    createdAt: '2026-05-19T11:15:00Z',
-    updatedAt: '2026-09-08T16:20:00Z',
-    entityIds: ['IF-P-007', 'IF-ACC-002', 'IF-ORG-002'],
-    evidenceCount: 24,
-    alertCount: 5,
-    metrics: {
-      totalEntities: 18,
-      highRiskEntities: 4,
-      verifiedConnections: 22,
-      pendingReviewConnections: 3,
-    },
-  },
-  {
-    id: 'IF-CASE-2026-0310',
-    code: 'IF-2026-0310',
-    name: 'Operation DarkVessel: Maritime Narcotics Smuggling',
-    status: 'CLOSED',
-    priority: 'CRITICAL',
-    leadInvestigator: 'ACP R. S. Jamwal',
-    assignedUnit: 'Narcotics Control & Coastal Security',
-    description: 'Multi-agency operation tracking container contraband, satellite phone logs, and off-grid courier rendezvous.',
-    createdAt: '2026-03-10T08:00:00Z',
-    updatedAt: '2026-08-01T14:30:00Z',
-    entityIds: ['IF-P-033', 'IF-VEH-003', 'IF-LOC-004'],
-    evidenceCount: 42,
-    alertCount: 0,
-    metrics: {
-      totalEntities: 29,
-      highRiskEntities: 9,
-      verifiedConnections: 54,
-      pendingReviewConnections: 0,
-    },
-  },
 ];
 
 export const SYNTHETIC_ENTITIES: Entity[] = [
